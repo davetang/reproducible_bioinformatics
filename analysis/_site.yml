@@ -1,7 +1,7 @@
 name: "reproducible_bioinformatics"
 output_dir: ../docs
 navbar:
-  title: "reproducible_bioinformatics"
+  title: "Reproducible Bioinformatics"
   left:
   - text: Home
     href: index.html

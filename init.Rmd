@@ -1,0 +1,76 @@
+---
+title: "Initiate workflowr"
+author: "Dave Tang"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Load library.
+
+```{r install}
+if(!"workflowr" %in% installed.packages()){
+  install.packages("workflowr")
+}
+
+library(workflowr)
+```
+
+Configure Git (only need to do once per computer).
+
+```{r git_config}
+wflow_git_config(user.name = "davetang", user.email = "davetingpongtang@gmail.com")
+```
+
+Start a new workflowr project.
+
+```{r wflow_start}
+wflow_start(directory = ".", existing = TRUE)
+```
+
+Build the site.
+
+```{r wflow_build}
+wflow_build()
+```
+
+Customize your site!
+
+1. Edit the R Markdown files in analysis/
+2. Edit the theme and layout in analysis/_site.yml
+3. Add new or copy existing R Markdown files to analysis/
+
+```{r wflow_publish}
+# Preview your changes
+wflow_build()
+
+# Publish the site, i.e. version the source code and HTML results
+wflow_publish(c("analysis/index.Rmd", "analysis/about.Rmd", "analysis/license.Rmd"),
+              "New workflowr project")
+```
+
+```{r}
+wflow_git_commit(files = c("analysis/_site.yml", "init.Rmd"))
+```
+
+Deploying website.
+
+```{r deploy}
+wflow_use_github("davetang")
+```
+
+In the terminal.
+
+```{bash eval=FALSE}
+git remote add origin git@github.com:davetang/something.git
+git push -u origin master
+```
+
+Add new analysis file.
+
+```{r wflow_open}
+wflow_open("analysis/first-analysis.Rmd")
+```
+

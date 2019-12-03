@@ -8,4 +8,8 @@ editor_options:
   chunk_output_type: console
 ---
 
-Welcome to my research website.
+* Introduction to reproducible bioinformatics
+* Introduction to Conda
+* Introduction to `workflowr`
+* Introduction to Docker
+* Wrap up

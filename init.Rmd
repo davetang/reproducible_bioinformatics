@@ -51,7 +51,9 @@ wflow_publish(c("analysis/index.Rmd", "analysis/about.Rmd", "analysis/license.Rm
               "New workflowr project")
 ```
 
-```{r}
+Commit files.
+
+```{r wflow_git_commit}
 wflow_git_commit(files = c("analysis/_site.yml", "init.Rmd"))
 ```
 
@@ -61,7 +63,13 @@ Deploying website.
 wflow_use_github("davetang")
 ```
 
-In the terminal.
+Use R to push.
+
+```{r wflow_git_push}
+wflow_git_push()
+```
+
+Use terminal to push.
 
 ```{bash eval=FALSE}
 git remote add origin git@github.com:davetang/something.git
@@ -73,4 +81,3 @@ Add new analysis file.
 ```{r wflow_open}
 wflow_open("analysis/first-analysis.Rmd")
 ```
-

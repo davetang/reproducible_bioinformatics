@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Dave Tang" />
+
+<meta name="date" content="2019-12-05" />
+
+<title>Introduction to Conda</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 51px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h2 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h3 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h4 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h5 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h6 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #ffffff;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row-fluid">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">Reproducible Bioinformatics</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="license.html">License</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="https://github.com/your-github-username/reproducible_bioinformatics">
+    <span class="fa fa-github"></span>
+     
+    Source code
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore">Introduction to Conda</h1>
+<h4 class="author">Dave Tang</h4>
+<h4 class="date">2019-12-05</h4>
+
+</div>
+
+
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
+</button>
+</p>
+<div id="workflowr-report" class="collapse">
+<ul class="nav nav-tabs">
+<li class="active">
+<a data-toggle="tab" href="#summary">Summary</a>
+</li>
+<li>
+<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> </a>
+</li>
+<li>
+<a data-toggle="tab" href="#versions">Past versions</a>
+</li>
+</ul>
+<div class="tab-content">
+<div id="summary" class="tab-pane fade in active">
+<p>
+<strong>Last updated:</strong> 2019-12-05
+</p>
+<p>
+<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
+</p>
+<p>
+<strong>Knit directory:</strong> <code>reproducible_bioinformatics/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
+</p>
+<p>
+This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis was created with <a
+  href="https://github.com/jdblischak/workflowr">workflowr</a> (version 1.5.0). The <em>Checks</em> tab describes the reproducibility checks that were applied when the results were created. The <em>Past versions</em> tab lists the development history.
+</p>
+<hr>
+</div>
+<div id="checks" class="tab-pane fade">
+<div id="workflowr-checks" class="panel-group">
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date </a>
+</p>
+</div>
+<div id="strongRMarkdownfilestronguptodate" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great! Since the R Markdown file has been committed to the Git repository, you know the exact version of the code that produced these results.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
+</p>
+</div>
+<div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! The global environment was empty. Objects defined in the global environment can affect the analysis in your R Markdown file in unknown ways. For reproduciblity it’s best to always run the code in an empty environment.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20191203code"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Seed:</strong> <code>set.seed(20191203)</code> </a>
+</p>
+</div>
+<div id="strongSeedstrongcodesetseed20191203code" class="panel-collapse collapse">
+<div class="panel-body">
+<p>The command <code>set.seed(20191203)</code> was run prior to running the code in the R Markdown file. Setting a seed ensures that any results that rely on randomness, e.g. subsampling or permutations, are reproducible.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Session information:</strong> recorded </a>
+</p>
+</div>
+<div id="strongSessioninformationstrongrecorded" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Recording the operating system, R version, and package versions is critical for reproducibility.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Cache:</strong> none </a>
+</p>
+</div>
+<div id="strongCachestrongnone" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Nice! There were no cached chunks for this analysis, so you can be confident that you successfully produced the results during this run.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
+</p>
+</div>
+<div id="strongFilepathsstrongrelative" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Using relative paths to the files within your workflowr project makes it easier to run your code on other machines.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomyourgithubusernamereproduciblebioinformaticstreea4180a44e607a3314106dfd9414557a53fe1921btargetblanka4180a4a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/your-github-username/reproducible_bioinformatics/tree/a4180a44e607a3314106dfd9414557a53fe1921b" target="_blank">a4180a4</a> </a>
+</p>
+</div>
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomyourgithubusernamereproduciblebioinformaticstreea4180a44e607a3314106dfd9414557a53fe1921btargetblanka4180a4a" class="panel-collapse collapse">
+<div class="panel-body">
+<p>
+Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
+</p>
+<pre><code>
+Ignored files:
+    Ignored:    .Rhistory
+
+Untracked files:
+    Untracked:  analysis/docker.Rmd
+    Untracked:  analysis/workflowr.Rmd
+    Untracked:  environment.yml
+
+Unstaged changes:
+    Deleted:    assets/new_rmarkdown.png
+
+</code></pre>
+<p>
+Note that any generated files, e.g. HTML, png, CSS, etc., are not included in this status report because it is ok for generated content to have uncommitted changes.
+</p>
+</div>
+</div>
+</div>
+</div>
+<hr>
+</div>
+<div id="versions" class="tab-pane fade">
+
+<p>
+These are the previous versions of the R Markdown and HTML files. If you’ve configured a remote Git repository (see <code>?wflow_git_remote</code>), click on the hyperlinks in the table below to view them.
+</p>
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+File
+</th>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+<th>
+Message
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/your-github-username/reproducible_bioinformatics/blob/a4180a44e607a3314106dfd9414557a53fe1921b/analysis/conda.Rmd" target="_blank">a4180a4</a>
+</td>
+<td>
+First Last
+</td>
+<td>
+2019-12-04
+</td>
+<td>
+wflow_publish(files = c(“analysis/conda.Rmd”, “analysis/index.Rmd”))
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr>
+</div>
+</div>
+</div>
+<p>This tutorial was adopted from <a href="https://geohackweek.github.io/Introductory/01-conda-tutorial/">here</a>. The output shown is based on running the commands inside a container using the <a href="https://hub.docker.com/r/continuumio/miniconda3">continuumio/miniconda</a> Docker image. To follow this tutorial, make sure you have Docker installed and use <code>docker pull</code> to download the latest container.</p>
+<pre class="bash"><code>docker pull continuumio/miniconda3</code></pre>
+<p>The objective of the workshop is to demonstrate how Conda can be used to simplify the installation of bioinformatic tools and to create reproducible (and separate) environments.</p>
+<div id="what-is-conda" class="section level2">
+<h2>What is Conda?</h2>
+<p>From the <a href="https://docs.conda.io/en/latest/">Conda</a> documentation:</p>
+<pre><code>Conda is an open source package management system and environment management system that runs on Windows, macOS and Linux. Conda quickly installs, runs and updates packages and their dependencies. Conda easily creates, saves, loads and switches between environments on your local computer. It was created for Python programs, but it can package and distribute software for any language.</code></pre>
+<p>If you have run into dependency problems before when trying to install bioinformatic tools, Conda helps deal with this. Furthermore, Conda makes it easier to install and work with incompatible tools.</p>
+</div>
+<div id="what-is-anaconda" class="section level2">
+<h2>What is Anaconda?</h2>
+<p><a href="https://www.continuum.io/why-anaconda">Anaconda</a> is a distribution of Conda. It is a data science platform that comes with a lot of packages (too many in my opinion).</p>
+</div>
+<div id="what-is-miniconda" class="section level2">
+<h2>What is Miniconda?</h2>
+<p><a href="https://docs.conda.io/en/latest/miniconda.html">Miniconda</a> is a minimal installer for Conda. It is a small, bootstrap version of Anaconda that includes only Conda, Python, the packages they depend on, and a small number of other useful packages, including pip, zlib and a few others. I prefer using Miniconda and only installing tools that I need.</p>
+</div>
+<div id="what-is-bioconda" class="section level2">
+<h2>What is Bioconda?</h2>
+<p><a href="https://bioconda.github.io/">Bioconda</a> is a distribution of bioinformatics software realised as a channel for the versatile Conda package manager. Most widely used bioinformatic tools are available on the Bioconda channel, which hosts over 6,000 bioinformatics packages.</p>
+</div>
+<div id="conda-basics" class="section level2">
+<h2>Conda basics</h2>
+<p>For this workshop we are using Conda inside a Docker container. Once you have pulled the latest image, run the following command.</p>
+<pre class="bash"><code># run new container
+docker run -it --rm continuumio/miniconda bash</code></pre>
+<p>Your command prompt should look something like after running the command above:</p>
+<pre><code>(base) root@d470a3e9da91:/# </code></pre>
+<div id="conda-version" class="section level3">
+<h3>Conda version</h3>
+<p>Like any good tool, if you type <code>conda</code> without any parameters you will get the usage and all the subcommands.</p>
+<pre class="bash"><code>conda
+usage: conda [-h] [-V] command ...
+
+conda is a tool for managing and deploying applications, environments and packages.
+
+Options:
+
+positional arguments:
+  command
+    clean        Remove unused packages and caches.
+    config       Modify configuration values in .condarc. This is modeled
+                 after the git config command. Writes to the user .condarc
+                 file (/root/.condarc) by default.
+    create       Create a new conda environment from a list of specified
+                 packages.
+    help         Displays a list of available conda commands and their help
+                 strings.
+    info         Display information about current conda install.
+    init         Initialize conda for shell interaction. [Experimental]
+    install      Installs a list of packages into a specified conda
+                 environment.
+    list         List linked packages in a conda environment.
+    package      Low-level conda package utility. (EXPERIMENTAL)
+    remove       Remove a list of packages from a specified conda environment.
+    uninstall    Alias for conda remove.
+    run          Run an executable in a conda environment. [Experimental]
+    search       Search for packages and display associated information. The
+                 input is a MatchSpec, a query language for conda packages.
+                 See examples below.
+    update       Updates conda packages to the latest compatible version.
+    upgrade      Alias for conda update.
+
+optional arguments:
+  -h, --help     Show this help message and exit.
+  -V, --version  Show the conda version number and exit.
+
+conda commands available from other packages:
+  env</code></pre>
+<p>We can find out what version of Conda we are using.</p>
+<pre class="bash"><code>conda --version
+conda 4.7.10</code></pre>
+</div>
+<div id="conda-help-and-manual" class="section level3">
+<h3>Conda Help and Manual</h3>
+<p>To see the full documentation for any command, type the command followed by <code>--help</code>. For example, to learn about the <code>conda update</code> command:</p>
+<pre class="bash"><code>conda update --help</code></pre>
+<p>We will now make sure that Conda is up to date by using <code>conda update</code>. Conda will compare versions and let you know what is available to install. It will also tell you about other packages that will be automatically updated or changed with the update.</p>
+<pre class="bash"><code># when prompted enter &quot;y&quot;
+conda update conda
+
+conda --version
+conda 4.7.12</code></pre>
+<p>You can also update all Conda packages to the latest compatible version.</p>
+<pre class="bash"><code># don&#39;t need to run this
+conda update --all</code></pre>
+</div>
+<div id="cleaning-up" class="section level3">
+<h3>Cleaning up</h3>
+<p>Conda will download and cache temporary files; remember to use <code>conda clean</code> periodically to clean up temp files.</p>
+<pre class="bash"><code>conda clean -a</code></pre>
+</div>
+<div id="installing-bioinformatic-tools" class="section level3">
+<h3>Installing bioinformatic tools</h3>
+<p>Installing <code>bcftools</code> is just a single command using the Bioconda channel.</p>
+<pre class="bash"><code>conda install -c bioconda bcftools
+cd /tmp
+wget https://github.com/davetang/learning_vcf_file/raw/master/aln_consensus.bcf
+
+# get all SNPs, ignore the metadata, and view the first two lines
+bcftools view -v snps aln_consensus.bcf | grep -v &quot;^#&quot; | head -2
+1000000 336 .   A   G   221.999 .   DP=112;VDB=0.756462;SGB=-0.693147;MQ0F=0;AF1=1;AC1=2;DP4=0,0,102,0;MQ=60;FQ=-281.989    GT:PL   1/1:255,255,0
+1000000 378 .   T   C   221.999 .   DP=101;VDB=0.704379;SGB=-0.693147;MQ0F=0;AF1=1;AC1=2;DP4=0,0,99,0;MQ=60;FQ=-281.989 GT:PL   1/1:255,255,0</code></pre>
+<p>Here’s how you would install <code>bcftools</code> without Conda.</p>
+<p><img src="assets/bcftools.png" /></p>
+</div>
+</div>
+<div id="managing-environments" class="section level2">
+<h2>Managing Environments</h2>
+<div id="what-is-a-conda-environment-and-why-is-it-so-useful" class="section level3">
+<h3>What is a Conda environment and why is it so useful?</h3>
+<p>Using Conda, you can create an isolated <em>environment</em> for your project. An environment is a set of packages that can be used in one or multiple projects. The default environment with Miniconda is the <code>base</code> environment. I don’t recommend installing all your packages/tools under the same environment.</p>
+<p>There are two ways of creating a Conda environment.</p>
+<ol style="list-style-type: decimal">
+<li>An environment file in YAML format (<code>environment.yml</code>).</li>
+<li>Manual specifications of packages.</li>
+</ol>
+</div>
+<div id="creating-environment-with-an-environment-file." class="section level3">
+<h3>Creating environment with an environment file.</h3>
+<p>An example of an environment file (<code>environment.yml</code>) I used for a specific project.</p>
+<pre><code>name: new_project
+channels:
+  - bioconda
+  - anaconda
+  - conda-forge
+  - defaults
+dependencies:
+  - fastqc
+  - multiqc
+  - cutadapt
+  - bwa
+  - samtools
+  - macs2
+  - bedtools
+  - deeptools
+  - minimap2
+  - star
+  - parallel
+  - idr</code></pre>
+<p>Now, let’s use this <code>environment.yml</code> environment file to install an older version of <code>bwa</code> in an isolated environment called <code>bwa_old</code>.</p>
+<pre><code>name: bwa_old
+channels:
+  - bioconda
+dependencies:
+  - bwa=0.7.15</code></pre>
+<p>Create the environment.</p>
+<pre class="bash"><code>wget https://raw.githubusercontent.com/davetang/reproducible_bioinformatics/master/environment.yml
+
+conda env create --file environment.yml
+
+# check list of environments
+conda env list
+# conda environments:
+#
+base                  *  /opt/conda
+bwa_old                  /opt/conda/envs/bwa_old</code></pre>
+<p>Activate the environment. The <code>(bwa_old)</code> in the beginning of the line indicates that we are curently using the <code>bwa_old</code> Conda environment.</p>
+<pre class="bash"><code>conda activate bwa_old
+
+# your prompt should change to
+# (bwa_old) root@d470a3e9da91:/tmp#
+
+bwa
+
+Program: bwa (alignment via Burrows-Wheeler transformation)
+Version: 0.7.15-r1140
+Contact: Heng Li &lt;lh3@sanger.ac.uk&gt;</code></pre>
+<p>Deactivate the environment.</p>
+<pre class="bash"><code>conda deactivate
+
+# your prompt will change back to
+# (base) root@d470a3e9da91:/tmp#</code></pre>
+</div>
+<div id="creating-environment-by-manually-specifying-packages." class="section level3">
+<h3>Creating environment by manually specifying packages.</h3>
+<p>We can create Conda environments by specifying the name, channel, and list of packages within the terminal. In the example below, we are creating the <code>test_env</code> environment that uses python 2.7 and a list of libraries: <code>numpy</code>, <code>matplotlib</code>, <code>pandas</code>.</p>
+<pre class="bash"><code>conda create -c conda-forge -n test_env python=2.7 numpy matplotlib pandas</code></pre>
+<p>Conda will solve any dependencies between the packages like before and create a new environment with those packages. I prefer creating environments using an environment file rather than on the command line.</p>
+</div>
+<div id="sharing-environments-with-others" class="section level3">
+<h3>Sharing Environments with others</h3>
+<p>To share an environment, you can export your Conda environment to an environment file. By doing this, the resulting environment file is very detailed with listings of specific versions of tools.</p>
+<p>Exporting your environment to a file called <code>test_env.yml</code>:</p>
+<pre class="bash"><code>conda activate bwa_old
+
+conda env export -f test_env.yml
+
+cat test_env.yml 
+name: bwa_old
+channels:
+  - bioconda
+  - defaults
+dependencies:
+  - _libgcc_mutex=0.1=main
+  - bwa=0.7.15=1
+  - libgcc=7.2.0=h69d50b8_2
+  - libgcc-ng=9.1.0=hdf63c60_0
+  - libstdcxx-ng=9.1.0=hdf63c60_0
+  - zlib=1.2.11=h7b6447c_3
+prefix: /opt/conda/envs/bwa_old</code></pre>
+<p>Each package follows the <code>package=version=build</code> convention. Most Conda packages use a system called semantic versioning to identify distinct versions of a software package unambiguously. Under semantic versioning, software is labeled with a three-part version identifier of the form MAJOR.MINOR.PATCH; the label components are non-negative integers separated by periods.</p>
+<p>Note that this environment file may not work across platforms, since the builds and versions might be different for different operating systems (another reason to use Docker).</p>
+</div>
+<div id="deleting-environments" class="section level3">
+<h3>Deleting environments</h3>
+<p>Before deleting an environment make sure you are not currently using the environment or you will get an error.</p>
+<pre class="bash"><code>conda env remove -n bwa_old</code></pre>
+</div>
+</div>
+<div id="managing-packages" class="section level2">
+<h2>Managing Packages</h2>
+<div id="seeing-what-packages-are-available" class="section level3">
+<h3>Seeing what packages are available</h3>
+<p>The commands below will list all the packages in the <code>bwa_old</code> and <code>base</code> environments. The list will include versions of each package, the specific build, and the channel that the package was downloaded from. <code>conda list</code> is useful to ensure that you have installed the packages that you desire.</p>
+<pre class="bash"><code>conda list -n bwa_old
+# packages in environment at /opt/conda/envs/bwa_old:
+#
+# Name                    Version                   Build  Channel
+_libgcc_mutex             0.1                        main  
+bwa                       0.7.15                        1    bioconda
+libgcc                    7.2.0                h69d50b8_2  
+libgcc-ng                 9.1.0                hdf63c60_0  
+libstdcxx-ng              9.1.0                hdf63c60_0  
+zlib                      1.2.11               h7b6447c_3  
+
+conda list -n base
+# packages in environment at /opt/conda:
+#
+# Name                    Version                   Build  Channel
+_libgcc_mutex             0.1                        main  
+asn1crypto                1.2.0                    py27_0  
+ca-certificates           2019.11.27                    0  
+certifi                   2019.11.28               py27_0  
+cffi                      1.13.2           py27h2e261b9_0  
+chardet                   3.0.4                 py27_1003  
+conda                     4.7.12                   py27_0  
+conda-package-handling    1.6.0            py27h7b6447c_0  
+cryptography              2.8              py27h1ba5d50_0  
+enum34                    1.1.6                    py27_1  
+futures                   3.3.0                    py27_0  
+idna                      2.8                      py27_0  
+ipaddress                 1.0.23                     py_0  
+libedit                   3.1.20181209         hc058e9b_0  
+libffi                    3.2.1                hd88cf55_4  
+libgcc-ng                 9.1.0                hdf63c60_0  
+libstdcxx-ng              9.1.0                hdf63c60_0  
+ncurses                   6.1                  he6710b0_1  
+openssl                   1.1.1d               h7b6447c_3  
+pip                       19.3.1                   py27_0  
+pycosat                   0.6.3            py27h14c3975_0  
+pycparser                 2.19                     py27_0  
+pyopenssl                 19.1.0                   py27_0  
+pysocks                   1.7.1                    py27_0  
+python                    2.7.16               h9bab390_0  
+readline                  7.0                  h7b6447c_5  
+requests                  2.22.0                   py27_0  
+ruamel_yaml               0.15.46          py27h14c3975_0  
+setuptools                42.0.2                   py27_0  
+six                       1.13.0                   py27_0  
+sqlite                    3.30.1               h7b6447c_0  
+tk                        8.6.8                hbc83047_0  
+tqdm                      4.40.0                     py_0  
+urllib3                   1.24.2                   py27_0  
+wheel                     0.33.6                   py27_0  
+yaml                      0.1.7                had09818_2  
+zlib                      1.2.11               h7b6447c_3  </code></pre>
+</div>
+<div id="conda-packages" class="section level3">
+<h3>Conda packages</h3>
+<p>Conda packages are files containing a bundle of resources: usually libraries and executables, but not always. In principle, Conda packages can include data, images, notebooks, or other assets.</p>
+<p>It is important to be careful when downloading packages and use only trusted sources. <a href="https://conda-forge.org/">Conda forge</a> is a reliable source for many popular python packages. <a href="https://anaconda.org/">Anaconda Cloud</a> is a package management service that makes it easy to find, access, store and share public and private notebooks, environments, and Conda and PyPI packages. <a href="https://bioconda.github.io/">Bioconda</a> is a trusted channel for the conda package manager specialising in bioinformatics software.</p>
+</div>
+<div id="pre-configuring-channels" class="section level3">
+<h3>Pre-configuring Channels</h3>
+<p>If you have a few trusted channels that you prefer to use, you can pre-configure these so that everytime you are creating an environment, you won’t need to explicitly declare the channel.</p>
+<pre class="bash"><code>conda config --add channels conda-forge
+conda config --add channels bioconda</code></pre>
+<p>After adding channels, you can search for packages.</p>
+<pre class="bash"><code>conda search bwa
+Loading channels: done
+# Name                       Version           Build  Channel             
+bwa                            0.5.9               0  bioconda            
+bwa                            0.5.9               1  bioconda            
+bwa                            0.5.9      ha92aebf_2  bioconda            
+bwa                            0.6.2               0  bioconda            
+bwa                            0.6.2               1  bioconda            
+bwa                            0.6.2      ha92aebf_2  bioconda            
+bwa                           0.7.3a               0  bioconda            
+bwa                           0.7.3a               1  bioconda            
+bwa                           0.7.3a      h84994c4_3  bioconda            
+bwa                           0.7.3a      h84994c4_4  bioconda            
+bwa                           0.7.3a      ha92aebf_2  bioconda            
+bwa                            0.7.4      h84994c4_1  bioconda            
+bwa                            0.7.4      ha92aebf_0  bioconda            
+bwa                            0.7.4      hed695b0_2  bioconda            
+bwa                            0.7.4      hed695b0_3  bioconda            
+bwa                            0.7.8               0  bioconda            
+bwa                            0.7.8               1  bioconda            
+bwa                            0.7.8      h84994c4_3  bioconda            
+bwa                            0.7.8      ha92aebf_2  bioconda            
+bwa                            0.7.8      hed695b0_4  bioconda            
+bwa                            0.7.8      hed695b0_5  bioconda            
+bwa                           0.7.12               0  bioconda            
+bwa                           0.7.12               1  bioconda            
+bwa                           0.7.13               0  bioconda            
+bwa                           0.7.13               1  bioconda            
+bwa                           0.7.15               0  bioconda            
+bwa                           0.7.15               1  bioconda            
+bwa                           0.7.16      pl5.22.0_0  bioconda            
+bwa                           0.7.17      h84994c4_4  bioconda            
+bwa                           0.7.17      h84994c4_5  bioconda            
+bwa                           0.7.17      ha92aebf_3  bioconda            
+bwa                           0.7.17      hed695b0_6  bioconda            
+bwa                           0.7.17      pl5.22.0_0  bioconda            
+bwa                           0.7.17      pl5.22.0_1  bioconda            
+bwa                           0.7.17      pl5.22.0_2  bioconda            </code></pre>
+</div>
+<div id="removing-conda-packages" class="section level3">
+<h3>Removing Conda Packages</h3>
+<p>Use <code>conda remove</code> to remove packages.</p>
+<pre class="bash"><code>conda remove bcftools</code></pre>
+<br>
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
+<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span> Session information
+</button>
+</p>
+<div id="workflowr-sessioninfo" class="collapse">
+<pre class="r"><code>sessionInfo()</code></pre>
+<pre><code>R version 3.6.1 (2019-07-05)
+Platform: x86_64-apple-darwin15.6.0 (64-bit)
+Running under: macOS Mojave 10.14.6
+
+Matrix products: default
+BLAS:   /Library/Frameworks/R.framework/Versions/3.6/Resources/lib/libRblas.0.dylib
+LAPACK: /Library/Frameworks/R.framework/Versions/3.6/Resources/lib/libRlapack.dylib
+
+locale:
+[1] en_AU.UTF-8/en_AU.UTF-8/en_AU.UTF-8/C/en_AU.UTF-8/en_AU.UTF-8
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+loaded via a namespace (and not attached):
+ [1] workflowr_1.5.0 Rcpp_1.0.3      rprojroot_1.3-2 digest_0.6.22  
+ [5] later_1.0.0     R6_2.4.1        backports_1.1.5 git2r_0.26.1   
+ [9] magrittr_1.5    evaluate_0.14   stringi_1.4.3   rlang_0.4.1    
+[13] fs_1.3.1        promises_1.1.0  whisker_0.4     rmarkdown_1.17 
+[17] tools_3.6.1     stringr_1.4.0   glue_1.3.1      httpuv_1.5.2   
+[21] xfun_0.11       yaml_2.2.0      compiler_3.6.1  htmltools_0.4.0
+[25] knitr_1.26     </code></pre>
+</div>
+</div>
+</div>
+
+
+<!-- Adjust MathJax settings so that all math formulae are shown using
+TeX fonts only; see
+http://docs.mathjax.org/en/latest/configuration.html.  This will make
+the presentation more consistent at the cost of the webpage sometimes
+taking slightly longer to load. Note that this only works because the
+footer is added to webpages before the MathJax javascript. -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

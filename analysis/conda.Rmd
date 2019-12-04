@@ -1,0 +1,416 @@
+---
+title: "Introduction to Conda"
+author: "Dave Tang"
+date: "`r Sys.Date()`"
+output: workflowr::wflow_html
+editor_options:
+  chunk_output_type: console
+---
+
+This tutorial was adopted from [here](https://geohackweek.github.io/Introductory/01-conda-tutorial/). The output shown is based on running the commands inside a container using the [continuumio/miniconda](https://hub.docker.com/r/continuumio/miniconda3) Docker image. To follow this tutorial, make sure you have Docker installed and use `docker pull` to download the latest container.
+
+```{bash eval=FALSE}
+docker pull continuumio/miniconda3
+```
+
+The objective of the workshop is to demonstrate how Conda can be used to simplify the installation of bioinformatic tools and to create reproducible (and separate) environments.
+
+## What is Conda?
+
+From the <a href="https://docs.conda.io/en/latest/">Conda</a> documentation:
+
+    Conda is an open source package management system and environment management system that runs on Windows, macOS and Linux. Conda quickly installs, runs and updates packages and their dependencies. Conda easily creates, saves, loads and switches between environments on your local computer. It was created for Python programs, but it can package and distribute software for any language.
+
+If you have run into dependency problems before when trying to install bioinformatic tools, Conda helps deal with this. Furthermore, Conda makes it easier to install and work with incompatible tools.
+
+## What is Anaconda?
+
+[Anaconda](https://www.continuum.io/why-anaconda) is a distribution of Conda. It is a data science platform that comes with a lot of packages (too many in my opinion).
+
+## What is Miniconda?
+
+[Miniconda](https://docs.conda.io/en/latest/miniconda.html) is a minimal installer for Conda. It is a small, bootstrap version of Anaconda that includes only Conda, Python, the packages they depend on, and a small number of other useful packages, including pip, zlib and a few others. I prefer using Miniconda and only installing tools that I need.
+
+## What is Bioconda?
+
+[Bioconda](https://bioconda.github.io/) is a distribution of bioinformatics software realised as a channel for the versatile Conda package manager. Most widely used bioinformatic tools are available on the Bioconda channel, which hosts over 6,000 bioinformatics packages.
+
+## Conda basics
+
+For this workshop we are using Conda inside a Docker container. Once you have pulled the latest image, run the following command.
+
+```{bash eval=FALSE}
+# run new container
+docker run -it --rm continuumio/miniconda bash
+```
+
+Your command prompt should look something like after running the command above:
+
+```
+(base) root@d470a3e9da91:/# 
+```
+
+### Conda version
+
+Like any good tool, if you type `conda` without any parameters you will get the usage and all the subcommands.
+
+```{bash eval=FALSE}
+conda
+usage: conda [-h] [-V] command ...
+
+conda is a tool for managing and deploying applications, environments and packages.
+
+Options:
+
+positional arguments:
+  command
+    clean        Remove unused packages and caches.
+    config       Modify configuration values in .condarc. This is modeled
+                 after the git config command. Writes to the user .condarc
+                 file (/root/.condarc) by default.
+    create       Create a new conda environment from a list of specified
+                 packages.
+    help         Displays a list of available conda commands and their help
+                 strings.
+    info         Display information about current conda install.
+    init         Initialize conda for shell interaction. [Experimental]
+    install      Installs a list of packages into a specified conda
+                 environment.
+    list         List linked packages in a conda environment.
+    package      Low-level conda package utility. (EXPERIMENTAL)
+    remove       Remove a list of packages from a specified conda environment.
+    uninstall    Alias for conda remove.
+    run          Run an executable in a conda environment. [Experimental]
+    search       Search for packages and display associated information. The
+                 input is a MatchSpec, a query language for conda packages.
+                 See examples below.
+    update       Updates conda packages to the latest compatible version.
+    upgrade      Alias for conda update.
+
+optional arguments:
+  -h, --help     Show this help message and exit.
+  -V, --version  Show the conda version number and exit.
+
+conda commands available from other packages:
+  env
+```
+
+We can find out what version of Conda we are using.
+
+```{bash eval=FALSE}
+conda --version
+conda 4.7.10
+```
+
+### Conda Help and Manual
+
+To see the full documentation for any command, type the command followed by `--help`. For example, to learn about the `conda update` command:
+
+```{bash eval=FALSE}
+conda update --help
+```
+
+We will now make sure that Conda is up to date by using `conda update`. Conda will compare versions and let you know what is available to install. It will also tell you about other packages that will be automatically updated or changed with the update.
+
+```{bash eval=FALSE}
+# when prompted enter "y"
+conda update conda
+
+conda --version
+conda 4.7.12
+```
+
+You can also update all Conda packages to the latest compatible version.
+
+```{bash eval=FALSE}
+# don't need to run this
+conda update --all
+```
+
+### Cleaning up
+
+Conda will download and cache temporary files; remember to use `conda clean` periodically to clean up temp files.
+
+```{bash eval=FALSE}
+conda clean -a
+```
+
+### Installing bioinformatic tools
+
+Installing `bcftools` is just a single command using the Bioconda channel.
+
+```{bash eval=FALSE}
+conda install -c bioconda bcftools
+cd /tmp
+wget https://github.com/davetang/learning_vcf_file/raw/master/aln_consensus.bcf
+
+# get all SNPs, ignore the metadata, and view the first two lines
+bcftools view -v snps aln_consensus.bcf | grep -v "^#" | head -2
+1000000	336	.	A	G	221.999	.	DP=112;VDB=0.756462;SGB=-0.693147;MQ0F=0;AF1=1;AC1=2;DP4=0,0,102,0;MQ=60;FQ=-281.989	GT:PL	1/1:255,255,0
+1000000	378	.	T	C	221.999	.	DP=101;VDB=0.704379;SGB=-0.693147;MQ0F=0;AF1=1;AC1=2;DP4=0,0,99,0;MQ=60;FQ=-281.989	GT:PL	1/1:255,255,0
+```
+
+Here's how you would install `bcftools` without Conda.
+
+![](assets/bcftools.png)
+
+## Managing Environments
+
+### What is a Conda environment and why is it so useful?
+
+Using Conda, you can create an isolated *environment* for your project. An environment is a set of packages that can be used in one or multiple projects. The default environment with Miniconda is the `base` environment. I don't recommend installing all your packages/tools under the same environment.
+
+There are two ways of creating a Conda environment.
+
+1. An environment file in YAML format (`environment.yml`).
+2. Manual specifications of packages.
+
+### Creating environment with an environment file.
+
+An example of an environment file (`environment.yml`) I used for a specific project.
+
+```
+name: new_project
+channels:
+  - bioconda
+  - anaconda
+  - conda-forge
+  - defaults
+dependencies:
+  - fastqc
+  - multiqc
+  - cutadapt
+  - bwa
+  - samtools
+  - macs2
+  - bedtools
+  - deeptools
+  - minimap2
+  - star
+  - parallel
+  - idr
+```
+
+Now, let's use this `environment.yml` environment file to install an older version of `bwa` in an isolated environment called `bwa_old`.
+
+```
+name: bwa_old
+channels:
+  - bioconda
+dependencies:
+  - bwa=0.7.15
+```
+
+Create the environment.
+
+```{bash eval=FALSE}
+wget https://raw.githubusercontent.com/davetang/reproducible_bioinformatics/master/environment.yml
+
+conda env create --file environment.yml
+
+# check list of environments
+conda env list
+# conda environments:
+#
+base                  *  /opt/conda
+bwa_old                  /opt/conda/envs/bwa_old
+```
+
+Activate the environment. The `(bwa_old)` in the beginning of the line indicates that we are curently using the `bwa_old` Conda environment.
+
+```{bash eval=FALSE}
+conda activate bwa_old
+
+# your prompt should change to
+# (bwa_old) root@d470a3e9da91:/tmp#
+
+bwa
+
+Program: bwa (alignment via Burrows-Wheeler transformation)
+Version: 0.7.15-r1140
+Contact: Heng Li <lh3@sanger.ac.uk>
+```
+
+Deactivate the environment.
+
+```{bash eval=FALSE}
+conda deactivate
+
+# your prompt will change back to
+# (base) root@d470a3e9da91:/tmp#
+```
+
+### Creating environment by manually specifying packages.
+
+We can create Conda environments by specifying the name, channel, and list of packages within the terminal. In the example below, we are creating the `test_env` environment that uses python 2.7 and a list of libraries: `numpy`, `matplotlib`, `pandas`.
+
+```{bash, eval=FALSE}
+conda create -c conda-forge -n test_env python=2.7 numpy matplotlib pandas
+```
+
+Conda will solve any dependencies between the packages like before and create a new environment with those packages. I prefer creating environments using an environment file rather than on the command line.
+
+### Sharing Environments with others
+
+To share an environment, you can export your Conda environment to an environment file. By doing this, the resulting environment file is very detailed with listings of specific versions of tools.
+
+Exporting your environment to a file called `test_env.yml`:
+
+```{bash, eval=FALSE}
+conda activate bwa_old
+
+conda env export -f test_env.yml
+
+cat test_env.yml 
+name: bwa_old
+channels:
+  - bioconda
+  - defaults
+dependencies:
+  - _libgcc_mutex=0.1=main
+  - bwa=0.7.15=1
+  - libgcc=7.2.0=h69d50b8_2
+  - libgcc-ng=9.1.0=hdf63c60_0
+  - libstdcxx-ng=9.1.0=hdf63c60_0
+  - zlib=1.2.11=h7b6447c_3
+prefix: /opt/conda/envs/bwa_old
+```
+
+Each package follows the `package=version=build` convention. Most Conda packages use a system called semantic versioning to identify distinct versions of a software package unambiguously. Under semantic versioning, software is labeled with a three-part version identifier of the form MAJOR.MINOR.PATCH; the label components are non-negative integers separated by periods.
+
+Note that this environment file may not work across platforms, since the builds and versions might be different for different operating systems (another reason to use Docker).
+
+### Deleting environments
+
+Before deleting an environment make sure you are not currently using the environment or you will get an error.
+
+```{bash, eval=FALSE}
+conda env remove -n bwa_old
+```
+
+## Managing Packages
+
+### Seeing what packages are available
+
+The commands below will list all the packages in the `bwa_old` and `base` environments. The list will include versions of each package, the specific build, and the channel that the package was downloaded from. `conda list` is useful to ensure that you have installed the packages that you desire.
+
+```{bash, eval=FALSE}
+conda list -n bwa_old
+# packages in environment at /opt/conda/envs/bwa_old:
+#
+# Name                    Version                   Build  Channel
+_libgcc_mutex             0.1                        main  
+bwa                       0.7.15                        1    bioconda
+libgcc                    7.2.0                h69d50b8_2  
+libgcc-ng                 9.1.0                hdf63c60_0  
+libstdcxx-ng              9.1.0                hdf63c60_0  
+zlib                      1.2.11               h7b6447c_3  
+
+conda list -n base
+# packages in environment at /opt/conda:
+#
+# Name                    Version                   Build  Channel
+_libgcc_mutex             0.1                        main  
+asn1crypto                1.2.0                    py27_0  
+ca-certificates           2019.11.27                    0  
+certifi                   2019.11.28               py27_0  
+cffi                      1.13.2           py27h2e261b9_0  
+chardet                   3.0.4                 py27_1003  
+conda                     4.7.12                   py27_0  
+conda-package-handling    1.6.0            py27h7b6447c_0  
+cryptography              2.8              py27h1ba5d50_0  
+enum34                    1.1.6                    py27_1  
+futures                   3.3.0                    py27_0  
+idna                      2.8                      py27_0  
+ipaddress                 1.0.23                     py_0  
+libedit                   3.1.20181209         hc058e9b_0  
+libffi                    3.2.1                hd88cf55_4  
+libgcc-ng                 9.1.0                hdf63c60_0  
+libstdcxx-ng              9.1.0                hdf63c60_0  
+ncurses                   6.1                  he6710b0_1  
+openssl                   1.1.1d               h7b6447c_3  
+pip                       19.3.1                   py27_0  
+pycosat                   0.6.3            py27h14c3975_0  
+pycparser                 2.19                     py27_0  
+pyopenssl                 19.1.0                   py27_0  
+pysocks                   1.7.1                    py27_0  
+python                    2.7.16               h9bab390_0  
+readline                  7.0                  h7b6447c_5  
+requests                  2.22.0                   py27_0  
+ruamel_yaml               0.15.46          py27h14c3975_0  
+setuptools                42.0.2                   py27_0  
+six                       1.13.0                   py27_0  
+sqlite                    3.30.1               h7b6447c_0  
+tk                        8.6.8                hbc83047_0  
+tqdm                      4.40.0                     py_0  
+urllib3                   1.24.2                   py27_0  
+wheel                     0.33.6                   py27_0  
+yaml                      0.1.7                had09818_2  
+zlib                      1.2.11               h7b6447c_3  
+```
+
+### Conda packages
+
+Conda packages are files containing a bundle of resources: usually libraries and executables, but not always. In principle, Conda packages can include data, images, notebooks, or other assets.
+
+It is important to be careful when downloading packages and use only trusted sources. [Conda forge](https://conda-forge.org/) is a reliable source for many popular python packages. [Anaconda Cloud](https://anaconda.org/) is a package management service that makes it easy to find, access, store and share public and private notebooks, environments, and Conda and PyPI packages. [Bioconda](https://bioconda.github.io/) is a trusted channel for the conda package manager specialising in bioinformatics software.
+
+### Pre-configuring Channels
+
+If you have a few trusted channels that you prefer to use, you can pre-configure these so that everytime you are creating an environment, you won't need to explicitly declare the channel.
+
+```{bash, eval=FALSE}
+conda config --add channels conda-forge
+conda config --add channels bioconda
+```
+
+After adding channels, you can search for packages.
+
+```{bash eval=FALSE}
+conda search bwa
+Loading channels: done
+# Name                       Version           Build  Channel             
+bwa                            0.5.9               0  bioconda            
+bwa                            0.5.9               1  bioconda            
+bwa                            0.5.9      ha92aebf_2  bioconda            
+bwa                            0.6.2               0  bioconda            
+bwa                            0.6.2               1  bioconda            
+bwa                            0.6.2      ha92aebf_2  bioconda            
+bwa                           0.7.3a               0  bioconda            
+bwa                           0.7.3a               1  bioconda            
+bwa                           0.7.3a      h84994c4_3  bioconda            
+bwa                           0.7.3a      h84994c4_4  bioconda            
+bwa                           0.7.3a      ha92aebf_2  bioconda            
+bwa                            0.7.4      h84994c4_1  bioconda            
+bwa                            0.7.4      ha92aebf_0  bioconda            
+bwa                            0.7.4      hed695b0_2  bioconda            
+bwa                            0.7.4      hed695b0_3  bioconda            
+bwa                            0.7.8               0  bioconda            
+bwa                            0.7.8               1  bioconda            
+bwa                            0.7.8      h84994c4_3  bioconda            
+bwa                            0.7.8      ha92aebf_2  bioconda            
+bwa                            0.7.8      hed695b0_4  bioconda            
+bwa                            0.7.8      hed695b0_5  bioconda            
+bwa                           0.7.12               0  bioconda            
+bwa                           0.7.12               1  bioconda            
+bwa                           0.7.13               0  bioconda            
+bwa                           0.7.13               1  bioconda            
+bwa                           0.7.15               0  bioconda            
+bwa                           0.7.15               1  bioconda            
+bwa                           0.7.16      pl5.22.0_0  bioconda            
+bwa                           0.7.17      h84994c4_4  bioconda            
+bwa                           0.7.17      h84994c4_5  bioconda            
+bwa                           0.7.17      ha92aebf_3  bioconda            
+bwa                           0.7.17      hed695b0_6  bioconda            
+bwa                           0.7.17      pl5.22.0_0  bioconda            
+bwa                           0.7.17      pl5.22.0_1  bioconda            
+bwa                           0.7.17      pl5.22.0_2  bioconda            
+```
+
+### Removing Conda Packages
+
+Use `conda remove` to remove packages.
+
+```{bash, eval=FALSE}
+conda remove bcftools
+```

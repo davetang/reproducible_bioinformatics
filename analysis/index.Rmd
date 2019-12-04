@@ -8,8 +8,6 @@ editor_options:
   chunk_output_type: console
 ---
 
-* Introduction to reproducible bioinformatics
-* Introduction to Conda
-* Introduction to `workflowr`
 * Introduction to Docker
-* Wrap up
+* [Introduction to Conda](conda.html)
+* Introduction to `workflowr`

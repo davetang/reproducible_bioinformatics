@@ -2,7 +2,9 @@
 title: "Concluding remarks"
 author: "Dave Tang"
 date: "`r Sys.Date()`"
-output: workflowr::wflow_html
+output:
+  workflowr::wflow_html:
+    toc: false
 editor_options:
   chunk_output_type: console
 ---
@@ -17,3 +19,4 @@ editor_options:
     * It automatically performs various checks to ensure that your analysis was run in a clean environment
 * Follow these [Ten Simple Rules for Reproducible Computational Research](https://doi.org/10.1371/journal.pcbi.1003285)
 * At the very least, you should be able to understand and reproduce your work
+

@@ -1,0 +1,19 @@
+---
+title: "Concluding remarks"
+author: "Dave Tang"
+date: "`r Sys.Date()`"
+output: workflowr::wflow_html
+editor_options:
+  chunk_output_type: console
+---
+
+* Tools like Conda and Docker simplify the installation of tools, which can be a major headache when tools have a long list of dependencies
+* Conda is a package management tool while Docker is a platform that can deliver software in packages called containers
+* Both tools can create isolated environments that can be easily shared with others so that others have an identical copy of your working space
+    * Docker does this slightly better across different operating systems
+* The workflowr package provides a framework for promoting reproducible research
+    * It creates a consistent directory structure that helps you stay organised
+    * It seemlessly generates a website (that can be easily uploaded online) containing time-stamped, versioned, and documented results
+    * It automatically performs various checks to ensure that your analysis was run in a clean environment
+* Follow these [Ten Simple Rules for Reproducible Computational Research](https://doi.org/10.1371/journal.pcbi.1003285)
+* At the very least, you should be able to understand and reproduce your work

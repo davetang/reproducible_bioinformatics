@@ -22,4 +22,3 @@ My aim for this workshop is to introduce computational tools and demonstrate how
 * Rule 10: Provide Public Access to Scripts, Runs, and Results
 
 I will be talking about [Docker](docker.html), [Conda](conda.html), and [workflowr](https://jdblischak.github.io/workflowr/articles/wflow-09-workshop.html). I share some of my thoughts on reproducible bioinformatics in [this post](https://davetang.org/muse/2019/12/04/reproducible-bioinformatics/) on my blog.
-

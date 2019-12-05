@@ -33,7 +33,7 @@ If you have run into dependency problems before when trying to install bioinform
 
 ## What is Bioconda?
 
-[Bioconda](https://bioconda.github.io/) is a distribution of bioinformatics software realised as a channel for the versatile Conda package manager. Most widely used bioinformatic tools are available on the Bioconda channel, which hosts over 6,000 bioinformatics packages.
+[Bioconda](https://bioconda.github.io/) is a distribution of bioinformatics software realised as a channel for the versatile Conda package manager. Conda channels are simply the locations where packages are stored. Most widely used bioinformatic tools are available on the Bioconda channel, which hosts over 6,000 bioinformatics packages.
 
 ## Conda basics
 

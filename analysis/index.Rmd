@@ -8,7 +8,7 @@ editor_options:
   chunk_output_type: console
 ---
 
-My aim for the workshop is to introduce computational tools and demonstrate how they can be used to help promote reproducibility when performing bioinformatic analyses. Many of these tools, especially `workflowr` help adhere to these [Ten Simple Rules for Reproducible Computational Research](https://doi.org/10.1371/journal.pcbi.1003285):
+My aim for this workshop is to introduce computational tools and demonstrate how they can be used to help promote reproducibility when performing bioinformatic analyses. Many of these tools help adhere to these [Ten Simple Rules for Reproducible Computational Research](https://doi.org/10.1371/journal.pcbi.1003285):
 
 * Rule 1: For Every Result, Keep Track of How It Was Produced
 * Rule 2: Avoid Manual Data Manipulation Steps
@@ -21,9 +21,5 @@ My aim for the workshop is to introduce computational tools and demonstrate how 
 * Rule 9: Connect Textual Statements to Underlying Results
 * Rule 10: Provide Public Access to Scripts, Runs, and Results
 
-Links to workshop material.
-
-* [Introduction to Docker](docker.html)
-* [Introduction to Conda](conda.html)
-* [Introduction to workflowr](https://jdblischak.github.io/workflowr/articles/wflow-09-workshop.html)
+I will be talking about [Docker](docker.html), [Conda](conda.html), and [workflowr](https://jdblischak.github.io/workflowr/articles/wflow-09-workshop.html). I share some of my thoughts on reproducible bioinformatics in [this post](https://davetang.org/muse/2019/12/04/reproducible-bioinformatics/) on my blog.
 

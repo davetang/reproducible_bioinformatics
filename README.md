@@ -65,11 +65,10 @@ docker pull davetang/rstudio_biocasia
 
 ## Useful links
 
-* https://github.com/jdblischak/workflowr
-* https://github.com/prakhar1989/docker-curriculum
-* https://github.com/indigo-dc/udocker
-* http://reproducible-bioinformatics.org/
-* https://www.coursera.org/learn/reproducible-research
-* https://leanpub.com/reportwriting
-* https://geohackweek.github.io/Introductory/
+* If you have never used R Markdown before, check out these series of tutorial - https://rmarkdown.rstudio.com/lesson-1.html
+* Coursera course on the concepts and tools behind reporting modern data analyses - https://www.coursera.org/learn/reproducible-research
+* Report Writing for Data Science in R - https://leanpub.com/reportwriting
+* Workflowr website - https://jdblischak.github.io/workflowr/
+* A comprehensive tutorial on getting started with Docker - https://github.com/prakhar1989/docker-curriculum
+* Execute Docker containers without root privileges - https://github.com/indigo-dc/udocker
 

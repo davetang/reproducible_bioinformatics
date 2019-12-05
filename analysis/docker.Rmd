@@ -1,0 +1,343 @@
+---
+title: "Introduction to Docker"
+author: "Dave Tang"
+date: "`r Sys.Date()`"
+output: workflowr::wflow_html
+editor_options:
+  chunk_output_type: console
+---
+
+This tutorial was adopted from [here](https://geohackweek.github.io/Introductory/docker-tutorial_temp/) and [here](http://biocworkshops2019.bioconductor.org.s3-website-us-east-1.amazonaws.com/page/BioconductorOnContainers__Bioconductor_Containers_Workshop/). The output shown is based on running the commands on my MacBook Pro (15-inch, 2017) using Docker version 19.03.5.
+
+To follow this tutorial, make sure you have Docker installed. This tutorial is aimed at beginners with no prior experience with Docker and participants are expected to launch Docker images on their local machines, mount volumes, and set ports as needed to use RStudio Server.
+
+## What is Docker?
+
+Docker is a platform that uses OS-level virtualisation to deliver software in packages called containers, which are completely isolated environments. They can have their own processes or services or network interfaces, volume mounts, just like a virtual machine (VM). They differ from VM’s only in a single aspect, they "share" the OS kernel. A Docker image is a static (fixed) template and container is a running version of the image.
+
+![](assets/docker_image.png)
+
+## Why containers?
+
+Containers make it easy to ship tools (useful for developers) and use tools on your local system (useful for users). A container encapsulates a software component and its corresponding dependencies so you can simply install software by downloading the image and run it on any system that supports Docker. Many bioinformatics tools have been containerised by the [BioContainers](https://biocontainers-edu.readthedocs.io/en/latest/introduction.html) initiative; they have over 1,000 [repositories on Docker Hub](https://hub.docker.com/u/biocontainers) containing Docker images of various bioinformatic tools. You simply have to pull these images onto your computer to start using it instead of installing software natively on your computer.
+
+## Docker basics
+
+First ensure that you have Docker installed.
+
+```{bash eval=FALSE}
+docker --version
+Docker version 19.03.5, build 633a0ea
+```
+
+### Hello, World!
+
+Obligatory step.
+
+```{bash eval=FALSE}
+docker run hello-world
+
+Hello from Docker!
+This message shows that your installation appears to be working correctly.
+
+To generate this message, Docker took the following steps:
+ 1. The Docker client contacted the Docker daemon.
+ 2. The Docker daemon pulled the "hello-world" image from the Docker Hub.
+    (amd64)
+ 3. The Docker daemon created a new container from that image which runs the
+    executable that produces the output you are currently reading.
+ 4. The Docker daemon streamed that output to the Docker client, which sent it
+    to your terminal.
+
+To try something more ambitious, you can run an Ubuntu container with:
+ $ docker run -it ubuntu bash
+
+Share images, automate workflows, and more with a free Docker ID:
+ https://hub.docker.com/
+
+For more examples and ideas, visit:
+ https://docs.docker.com/engine/userguide/
+```
+
+### Download Docker Images
+
+The `docker pull` command retrieves the latest version of the docker image from the Docker Hub. We will pull a software suite called [BusyBox](https://en.wikipedia.org/wiki/BusyBox), which combines tiny versions of many common UNIX utilities into a single small executable.
+
+```{bash eval=FALSE}
+docker pull busybox
+```
+
+### View Docker Images
+
+The `docker images` command shows you all the docker images that you have available on your local machine.
+
+```{bash eval=FALSE}
+docker images
+REPOSITORY                  TAG                 IMAGE ID            CREATED             SIZE
+busybox                     latest              b534869c81f0        17 hours ago        1.22MB
+```
+
+### Run Docker Containers
+
+The `docker run` command starts a new **docker container** using a **docker image**. A **docker image** is a filesystem and parameters to use at runtime. It doesn’t have state and never changes. A **docker container** is a running instance of an image.
+
+```{bash eval=FALSE}
+docker run -it --rm busybox
+```
+
+The `-i` flag specifies that you want to run the docker container interactively. The `-t` flag specifies that you want run a pseudoterminal when the container is started. The `--rm` flag automatically remove the container when it exits.
+
+Type `exit` on the command line to leave the docker container.
+
+```{bash eval=FALSE}
+/ # exit
+```
+
+### Removing An Image
+
+Remove the `busybox` image.
+
+```{bash eval=FALSE}
+docker rmi busybox
+
+# busybox should now be gone
+docker images
+```
+
+## Sharing files
+
+Docker containers (typically) will not contain the data that you want to analyse. You will need to specify which data volumes to link.
+
+### Linking Data Volumes
+
+If you haven't already, pull the `continuumio/miniconda` image, which will be used for the [Conda](conda.html) tutorial.
+
+```{bash eval=FALSE}
+docker pull continuumio/miniconda3
+```
+
+Data external to the container can be linked to the container using the following commmand:
+
+```{bash eval=FALSE}
+docker run -it --rm -v /tmp/:/data continuumio/miniconda3
+```
+
+"/tmp/" is the filepath to the data directory on your local filesystem. "/data" is the filepath to the folder in your container where the data will be linked. Note that any data in the "/data" folder will be replaced by the data from your local filesystem.  The '-v' flag specifies that you are linking a data volume.  Warning: **Any changes to the data made in the container will be propogated to the data on your local filesystem.**
+
+Create `data/hello.txt` inside the container.
+
+```{bash eval=FALSE}
+(base) root@20e8c5c1b4f6:/# echo "Hello from the otherside" > data/hello.txt
+
+# exit container
+exit
+
+ls -al /tmp/hello.txt 
+-rw-r--r--  1 dtang  wheel  25  5 Dec 09:08 /tmp/hello.txt
+
+cat /tmp/hello.txt 
+Hello from the otherside
+```
+
+The [wheel](https://en.wikipedia.org/wiki/Wheel_(computing)) group is a special group with special system privileges, i.e. admin privileges.
+
+### Linking Several Data Volumes
+
+You can link more than one volume by specifying another '-v' flag.
+
+```{bash eval=FALSE}
+docker run -it --rm \
+           -v /tmp/:/data1 \
+           -v /tmp/:/data2 \
+           continuumio/miniconda3
+```
+
+I have used `/tmp` twice just as an example; in reality you would use the two different locations on your local filesystem.
+
+## RStudio Server
+
+The [Rocker project](https://www.rocker-project.org/) provides various Docker images for the R environment. Here we use a [RStudio Server image](https://hub.docker.com/r/rocker/rstudio/) that I have prepared for this workshop.
+
+```{bash eval=FALSE}
+docker pull davetang/rstudio_biocasia
+```
+
+Once you have successfully pulled the image, try running the command below. The output indicates that the image is using the Debian operating system.
+
+```{bash eval=FALSE}
+docker run --rm -it davetang/rstudio_biocasia cat /etc/os-release
+PRETTY_NAME="Debian GNU/Linux 9 (stretch)"
+NAME="Debian GNU/Linux"
+VERSION_ID="9"
+VERSION="9 (stretch)"
+VERSION_CODENAME=stretch
+ID=debian
+HOME_URL="https://www.debian.org/"
+SUPPORT_URL="https://www.debian.org/support"
+BUG_REPORT_URL="https://bugs.debian.org/"
+```
+
+### Running RStudio Server from Docker
+
+Run `davetang/rstudio_biocasia` to start a container.
+
+```{bash eval=FALSE}
+docker run --rm \
+           -p 8888:8787 \
+           -e PASSWORD=password \
+           davetang/rstudio_biocasia
+```
+
+If all went well, you can access the RStudio Server at http://localhost:8888/ via your favourite web browser. The username is `rstudio` and the password is `password`. The flag '-p' is the port and '-e' is the environment variable; RStudio Server uses port 8787 by default by I have mapped this to port 8888 on my local machine. You can run several containers of RStudio Server if you use different ports.
+
+If you open up a new terminal, you can use `ps` to see that your container is running.
+
+```{bash eval=FALSE}
+docker ps
+CONTAINER ID        IMAGE                       COMMAND             CREATED             STATUS              PORTS                    NAMES
+4c2d23d61039        davetang/rstudio_biocasia   "/init"             4 seconds ago       Up 3 seconds        0.0.0.0:8888->8787/tcp   angry_wing
+```
+
+Use "Control+C" to terminate the container.
+
+### Saving Installed Packages
+
+I have pre-installed several R packages in `davetang/rstudio_biocasia` but the base image from Rocker only comes with base packages. We can mount a directory on our local filesystem to the Docker container and use that to store all our installed packages, so we don't have to re-install packages each time we start the container.
+
+```{bash eval=FALSE}
+docker run --rm \
+           -p 8888:8787 \
+           -v /tmp/packages/:/packages \
+           -e PASSWORD=password \
+           davetang/rstudio_biocasia
+```
+
+Go to http://localhost:8888/ via your favourite web browser just like before with the username `rstudio` and password `password`. Once you have logged in, use `.libPaths` to add a new library path.
+
+```{bash eval=FALSE}
+# add a new library path
+.libPaths(new = "/packages")
+
+.libPaths()
+[1] "/packages"                     "/usr/local/lib/R/site-library" "/usr/local/lib/R/library"
+```
+
+Newly installed packages will be installed in `/packages` inside the container, which is linked to `/tmp/packages` on your local machine.
+
+```{bash eval=FALSE}
+install.packages("pheatmap")
+Installing package into ‘/packages’
+(as ‘lib’ is unspecified)
+trying URL 'https://mran.microsoft.com/snapshot/2019-07-31/src/contrib/pheatmap_1.0.12.tar.gz'
+Content type 'application/octet-stream' length 15071 bytes (14 KB)
+==================================================
+downloaded 14 KB
+
+* installing *source* package ‘pheatmap’ ...
+** package ‘pheatmap’ successfully unpacked and MD5 sums checked
+** using staged installation
+** R
+** byte-compile and prepare package for lazy loading
+** help
+*** installing help indices
+** building package indices
+** testing if installed package can be loaded from temporary location
+** testing if installed package can be loaded from final location
+** testing if installed package keeps a record of temporary installation path
+* DONE (pheatmap)
+
+The downloaded source packages are in
+	‘/tmp/RtmpQ7rBy5/downloaded_packages’
+```
+
+The next time you run RStudio Server, you just need to add the packages directory. All the packages in that directory will be directly available to use instantly the next time RStudio is started from the container. Another big advantage is that it prevents your Docker image from growing in size due to package installation and data. This allows the users to distribute smaller Docker images containing only what is needed.
+
+```{bash eval=FALSE}
+.libPaths(new = "/packages")
+library(pheatmap)
+```
+
+Use "Control+C" to terminate the container.
+
+### Saving Analysis Results
+
+You can mount as many volumes as needed with the -v/--volume command. For example you can mount a `package`, `notebooks`, and `data` volume to save your work on your local machine.
+
+```{bash eval=FALSE}
+docker run --rm \
+           -p 8888:8787 \
+           -v /tmp/packages:/packages \
+           -v /tmp/notebooks:/notebooks \
+           -v /tmp/data:/data \
+           -e PASSWORD=password \
+           davetang/rstudio_biocasia
+```
+
+### RStudio Server preferences
+
+I have some specific preferences for RStudio Server that are absolutely necessary, such as using Vim key bindings. These preferences are set via the `Tools` menu bar and then selecting `Global Options...`. Each time we start a new container, we will lose our preferences and I don't want to manually change them each time. Luckily, the settings are saved in a specific file, which we can use to save our settings; the `user-settings` file is stored in the location below:
+
+```{bash eval=FALSE}
+/home/rstudio/.rstudio/monitored/user-settings/user-settings
+```
+
+Once you have made all your settings, save this file back to your local computer and use it to rewrite the default file next time you start a new instance. For example:
+
+```{bash eval=FALSE}
+# once you have the container running in the background, log into Docker container
+# I have mounted this directory to /data
+cp /data/user-settings /home/rstudio/.rstudio/monitored/user-settings/user-settings
+```
+
+Now you can have persistent RStudio Server preferences!
+
+## Create a Docker Image for Your Project
+
+Docker images are built based on commands contained in a [Dockerfile](https://docs.docker.com/engine/reference/builder/). For example below is the Dockerfile I used to create the `davetang/rstudio_biocasia` image.
+
+```{bash eval=FALSE}
+FROM rocker/rstudio:3.6.1
+
+MAINTAINER Dave Tang <me@davetang.org>
+
+RUN apt-get clean all && \
+        apt-get update && \
+        apt-get upgrade -y && \
+        apt-get install -y \
+                libhdf5-dev \
+                libcurl4-gnutls-dev \
+                libssl-dev \
+                libxml2-dev \
+                libpng-dev \
+                zlib1g-dev \
+        && apt-get clean all && \
+        apt-get purge && \
+        rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+RUN Rscript -e "install.packages(c('rmarkdown', 'tidyverse', 'workflowr'));"
+
+# COPY user-settings /home/rstudio/.rstudio/monitored/user-settings/user-settings
+# COPY .Rprofile /home/rstudio/
+```
+
+This Dockerfile uses the image `rocker/rstudio:3.6.1` as a base and installs some commonly used libraries. Additional R packages that will be used in another workshop have been added. I have also copied data from my local machine into folders in the Docker image using `COPY` (although commented out). This data will be permanently included in the Docker image and can be a drawback if the data is large since the resulting Docker image will need more disk space. It is generally preferred to mount data volumes for linking data to a running container.
+
+Each RUN, COPY, and ADD command in a Dockerfile generates another layer in the container thus increasing its size. You should always use multi-line commands and clean up package manager caches to minimise the final image size.
+
+A Dockerfile is used to create an image using the following command in the folder with the Dockerfile.
+
+```{bash eval=FALSE}
+docker build -t davetang/rstudio .
+```
+
+After successfully creating the Docker image, it can be pushed to the Docker Hub so that others can use it. First, login using your Docker Hub username and password. 
+
+```{bash eval=FALSE}
+docker login
+```
+
+Then push the image to [Docker Hub](https://hub.docker.com/r/davetang/rstudio_biocasia).
+
+```{bash eval=FALSE}
+docker push davetang/rstudio
+```

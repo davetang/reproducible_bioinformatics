@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Dave Tang" />
+
+<meta name="date" content="2019-12-05" />
+
+<title>Introduction to Docker</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 51px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h2 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h3 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h4 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h5 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h6 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #ffffff;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row-fluid">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">Reproducible Bioinformatics</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="license.html">License</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="https://github.com/your-github-username/reproducible_bioinformatics">
+    <span class="fa fa-github"></span>
+     
+    Source code
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore">Introduction to Docker</h1>
+<h4 class="author">Dave Tang</h4>
+<h4 class="date">2019-12-05</h4>
+
+</div>
+
+
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
+</button>
+</p>
+<div id="workflowr-report" class="collapse">
+<ul class="nav nav-tabs">
+<li class="active">
+<a data-toggle="tab" href="#summary">Summary</a>
+</li>
+<li>
+<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> </a>
+</li>
+<li>
+<a data-toggle="tab" href="#versions">Past versions</a>
+</li>
+</ul>
+<div class="tab-content">
+<div id="summary" class="tab-pane fade in active">
+<p>
+<strong>Last updated:</strong> 2019-12-05
+</p>
+<p>
+<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
+</p>
+<p>
+<strong>Knit directory:</strong> <code>reproducible_bioinformatics/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
+</p>
+<p>
+This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis was created with <a
+  href="https://github.com/jdblischak/workflowr">workflowr</a> (version 1.5.0). The <em>Checks</em> tab describes the reproducibility checks that were applied when the results were created. The <em>Past versions</em> tab lists the development history.
+</p>
+<hr>
+</div>
+<div id="checks" class="tab-pane fade">
+<div id="workflowr-checks" class="panel-group">
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date </a>
+</p>
+</div>
+<div id="strongRMarkdownfilestronguptodate" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great! Since the R Markdown file has been committed to the Git repository, you know the exact version of the code that produced these results.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
+</p>
+</div>
+<div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! The global environment was empty. Objects defined in the global environment can affect the analysis in your R Markdown file in unknown ways. For reproduciblity it’s best to always run the code in an empty environment.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20191203code"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Seed:</strong> <code>set.seed(20191203)</code> </a>
+</p>
+</div>
+<div id="strongSeedstrongcodesetseed20191203code" class="panel-collapse collapse">
+<div class="panel-body">
+<p>The command <code>set.seed(20191203)</code> was run prior to running the code in the R Markdown file. Setting a seed ensures that any results that rely on randomness, e.g. subsampling or permutations, are reproducible.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Session information:</strong> recorded </a>
+</p>
+</div>
+<div id="strongSessioninformationstrongrecorded" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Recording the operating system, R version, and package versions is critical for reproducibility.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Cache:</strong> none </a>
+</p>
+</div>
+<div id="strongCachestrongnone" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Nice! There were no cached chunks for this analysis, so you can be confident that you successfully produced the results during this run.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
+</p>
+</div>
+<div id="strongFilepathsstrongrelative" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Using relative paths to the files within your workflowr project makes it easier to run your code on other machines.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomdavetangreproduciblebioinformaticstreef19271df469962109870926049fecd4ffacb3839targetblankf19271da"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/davetang/reproducible_bioinformatics/tree/f19271df469962109870926049fecd4ffacb3839" target="_blank">f19271d</a> </a>
+</p>
+</div>
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomdavetangreproduciblebioinformaticstreef19271df469962109870926049fecd4ffacb3839targetblankf19271da" class="panel-collapse collapse">
+<div class="panel-body">
+<p>
+Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
+</p>
+<pre><code>
+Ignored files:
+    Ignored:    .Rhistory
+
+Unstaged changes:
+    Deleted:    assets/new_rmarkdown.png
+
+</code></pre>
+<p>
+Note that any generated files, e.g. HTML, png, CSS, etc., are not included in this status report because it is ok for generated content to have uncommitted changes.
+</p>
+</div>
+</div>
+</div>
+</div>
+<hr>
+</div>
+<div id="versions" class="tab-pane fade">
+
+<p>
+These are the previous versions of the R Markdown and HTML files. If you’ve configured a remote Git repository (see <code>?wflow_git_remote</code>), click on the hyperlinks in the table below to view them.
+</p>
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+File
+</th>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+<th>
+Message
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/davetang/reproducible_bioinformatics/blob/f19271df469962109870926049fecd4ffacb3839/analysis/docker.Rmd" target="_blank">f19271d</a>
+</td>
+<td>
+Dave Tang
+</td>
+<td>
+2019-12-05
+</td>
+<td>
+wflow_publish(files = c(“analysis/docker.Rmd”, “analysis/index.Rmd”))
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr>
+</div>
+</div>
+</div>
+<p>This tutorial was adopted from <a href="https://geohackweek.github.io/Introductory/docker-tutorial_temp/">here</a> and <a href="http://biocworkshops2019.bioconductor.org.s3-website-us-east-1.amazonaws.com/page/BioconductorOnContainers__Bioconductor_Containers_Workshop/">here</a>. The output shown is based on running the commands on my MacBook Pro (15-inch, 2017) using Docker version 19.03.5.</p>
+<p>To follow this tutorial, make sure you have Docker installed. This tutorial is aimed at beginners with no prior experience with Docker and participants are expected to launch Docker images on their local machines, mount volumes, and set ports as needed to use RStudio Server.</p>
+<div id="what-is-docker" class="section level2">
+<h2>What is Docker?</h2>
+<p>Docker is a platform that uses OS-level virtualisation to deliver software in packages called containers, which are completely isolated environments. They can have their own processes or services or network interfaces, volume mounts, just like a virtual machine (VM). They differ from VM’s only in a single aspect, they “share” the OS kernel. A Docker image is a static (fixed) template and container is a running version of the image.</p>
+<p><img src="assets/docker_image.png" /></p>
+</div>
+<div id="why-containers" class="section level2">
+<h2>Why containers?</h2>
+<p>Containers make it easy to ship tools (useful for developers) and use tools on your local system (useful for users). A container encapsulates a software component and its corresponding dependencies so you can simply install software by downloading the image and run it on any system that supports Docker. Many bioinformatics tools have been containerised by the <a href="https://biocontainers-edu.readthedocs.io/en/latest/introduction.html">BioContainers</a> initiative; they have over 1,000 <a href="https://hub.docker.com/u/biocontainers">repositories on Docker Hub</a> containing Docker images of various bioinformatic tools. You simply have to pull these images onto your computer to start using it instead of installing software natively on your computer.</p>
+</div>
+<div id="docker-basics" class="section level2">
+<h2>Docker basics</h2>
+<p>First ensure that you have Docker installed.</p>
+<pre class="bash"><code>docker --version
+Docker version 19.03.5, build 633a0ea</code></pre>
+<div id="hello-world" class="section level3">
+<h3>Hello, World!</h3>
+<p>Obligatory step.</p>
+<pre class="bash"><code>docker run hello-world
+
+Hello from Docker!
+This message shows that your installation appears to be working correctly.
+
+To generate this message, Docker took the following steps:
+ 1. The Docker client contacted the Docker daemon.
+ 2. The Docker daemon pulled the &quot;hello-world&quot; image from the Docker Hub.
+    (amd64)
+ 3. The Docker daemon created a new container from that image which runs the
+    executable that produces the output you are currently reading.
+ 4. The Docker daemon streamed that output to the Docker client, which sent it
+    to your terminal.
+
+To try something more ambitious, you can run an Ubuntu container with:
+ $ docker run -it ubuntu bash
+
+Share images, automate workflows, and more with a free Docker ID:
+ https://hub.docker.com/
+
+For more examples and ideas, visit:
+ https://docs.docker.com/engine/userguide/</code></pre>
+</div>
+<div id="download-docker-images" class="section level3">
+<h3>Download Docker Images</h3>
+<p>The <code>docker pull</code> command retrieves the latest version of the docker image from the Docker Hub. We will pull a software suite called <a href="https://en.wikipedia.org/wiki/BusyBox">BusyBox</a>, which combines tiny versions of many common UNIX utilities into a single small executable.</p>
+<pre class="bash"><code>docker pull busybox</code></pre>
+</div>
+<div id="view-docker-images" class="section level3">
+<h3>View Docker Images</h3>
+<p>The <code>docker images</code> command shows you all the docker images that you have available on your local machine.</p>
+<pre class="bash"><code>docker images
+REPOSITORY                  TAG                 IMAGE ID            CREATED             SIZE
+busybox                     latest              b534869c81f0        17 hours ago        1.22MB</code></pre>
+</div>
+<div id="run-docker-containers" class="section level3">
+<h3>Run Docker Containers</h3>
+<p>The <code>docker run</code> command starts a new <strong>docker container</strong> using a <strong>docker image</strong>. A <strong>docker image</strong> is a filesystem and parameters to use at runtime. It doesn’t have state and never changes. A <strong>docker container</strong> is a running instance of an image.</p>
+<pre class="bash"><code>docker run -it --rm busybox</code></pre>
+<p>The <code>-i</code> flag specifies that you want to run the docker container interactively. The <code>-t</code> flag specifies that you want run a pseudoterminal when the container is started. The <code>--rm</code> flag automatically remove the container when it exits.</p>
+<p>Type <code>exit</code> on the command line to leave the docker container.</p>
+<pre class="bash"><code>/ # exit</code></pre>
+</div>
+<div id="removing-an-image" class="section level3">
+<h3>Removing An Image</h3>
+<p>Remove the <code>busybox</code> image.</p>
+<pre class="bash"><code>docker rmi busybox
+
+# busybox should now be gone
+docker images</code></pre>
+</div>
+</div>
+<div id="sharing-files" class="section level2">
+<h2>Sharing files</h2>
+<p>Docker containers (typically) will not contain the data that you want to analyse. You will need to specify which data volumes to link.</p>
+<div id="linking-data-volumes" class="section level3">
+<h3>Linking Data Volumes</h3>
+<p>If you haven’t already, pull the <code>continuumio/miniconda</code> image, which will be used for the <a href="conda.html">Conda</a> tutorial.</p>
+<pre class="bash"><code>docker pull continuumio/miniconda3</code></pre>
+<p>Data external to the container can be linked to the container using the following commmand:</p>
+<pre class="bash"><code>docker run -it --rm -v /tmp/:/data continuumio/miniconda3</code></pre>
+<p>“/tmp/” is the filepath to the data directory on your local filesystem. “/data” is the filepath to the folder in your container where the data will be linked. Note that any data in the “/data” folder will be replaced by the data from your local filesystem. The ‘-v’ flag specifies that you are linking a data volume. Warning: <strong>Any changes to the data made in the container will be propogated to the data on your local filesystem.</strong></p>
+<p>Create <code>data/hello.txt</code> inside the container.</p>
+<pre class="bash"><code>(base) root@20e8c5c1b4f6:/# echo &quot;Hello from the otherside&quot; &gt; data/hello.txt
+
+# exit container
+exit
+
+ls -al /tmp/hello.txt 
+-rw-r--r--  1 dtang  wheel  25  5 Dec 09:08 /tmp/hello.txt
+
+cat /tmp/hello.txt 
+Hello from the otherside</code></pre>
+<p>The <a href="https://en.wikipedia.org/wiki/Wheel_(computing)">wheel</a> group is a special group with special system privileges, i.e. admin privileges.</p>
+</div>
+<div id="linking-several-data-volumes" class="section level3">
+<h3>Linking Several Data Volumes</h3>
+<p>You can link more than one volume by specifying another ‘-v’ flag.</p>
+<pre class="bash"><code>docker run -it --rm \
+           -v /tmp/:/data1 \
+           -v /tmp/:/data2 \
+           continuumio/miniconda3</code></pre>
+<p>I have used <code>/tmp</code> twice just as an example; in reality you would use the two different locations on your local filesystem.</p>
+</div>
+</div>
+<div id="rstudio-server" class="section level2">
+<h2>RStudio Server</h2>
+<p>The <a href="https://www.rocker-project.org/">Rocker project</a> provides various Docker images for the R environment. Here we use a <a href="https://hub.docker.com/r/rocker/rstudio/">RStudio Server image</a> that I have prepared for this workshop.</p>
+<pre class="bash"><code>docker pull davetang/rstudio_biocasia</code></pre>
+<p>Once you have successfully pulled the image, try running the command below. The output indicates that the image is using the Debian operating system.</p>
+<pre class="bash"><code>docker run --rm -it davetang/rstudio_biocasia cat /etc/os-release
+PRETTY_NAME=&quot;Debian GNU/Linux 9 (stretch)&quot;
+NAME=&quot;Debian GNU/Linux&quot;
+VERSION_ID=&quot;9&quot;
+VERSION=&quot;9 (stretch)&quot;
+VERSION_CODENAME=stretch
+ID=debian
+HOME_URL=&quot;https://www.debian.org/&quot;
+SUPPORT_URL=&quot;https://www.debian.org/support&quot;
+BUG_REPORT_URL=&quot;https://bugs.debian.org/&quot;</code></pre>
+<div id="running-rstudio-server-from-docker" class="section level3">
+<h3>Running RStudio Server from Docker</h3>
+<p>Run <code>davetang/rstudio_biocasia</code> to start a container.</p>
+<pre class="bash"><code>docker run --rm \
+           -p 8888:8787 \
+           -e PASSWORD=password \
+           davetang/rstudio_biocasia</code></pre>
+<p>If all went well, you can access the RStudio Server at <a href="http://localhost:8888/" class="uri">http://localhost:8888/</a> via your favourite web browser. The username is <code>rstudio</code> and the password is <code>password</code>. The flag ‘-p’ is the port and ‘-e’ is the environment variable; RStudio Server uses port 8787 by default by I have mapped this to port 8888 on my local machine. You can run several containers of RStudio Server if you use different ports.</p>
+<p>If you open up a new terminal, you can use <code>ps</code> to see that your container is running.</p>
+<pre class="bash"><code>docker ps
+CONTAINER ID        IMAGE                       COMMAND             CREATED             STATUS              PORTS                    NAMES
+4c2d23d61039        davetang/rstudio_biocasia   &quot;/init&quot;             4 seconds ago       Up 3 seconds        0.0.0.0:8888-&gt;8787/tcp   angry_wing</code></pre>
+<p>Use “Control+C” to terminate the container.</p>
+</div>
+<div id="saving-installed-packages" class="section level3">
+<h3>Saving Installed Packages</h3>
+<p>I have pre-installed several R packages in <code>davetang/rstudio_biocasia</code> but the base image from Rocker only comes with base packages. We can mount a directory on our local filesystem to the Docker container and use that to store all our installed packages, so we don’t have to re-install packages each time we start the container.</p>
+<pre class="bash"><code>docker run --rm \
+           -p 8888:8787 \
+           -v /tmp/packages/:/packages \
+           -e PASSWORD=password \
+           davetang/rstudio_biocasia</code></pre>
+<p>Go to <a href="http://localhost:8888/" class="uri">http://localhost:8888/</a> via your favourite web browser just like before with the username <code>rstudio</code> and password <code>password</code>. Once you have logged in, use <code>.libPaths</code> to add a new library path.</p>
+<pre class="bash"><code># add a new library path
+.libPaths(new = &quot;/packages&quot;)
+
+.libPaths()
+[1] &quot;/packages&quot;                     &quot;/usr/local/lib/R/site-library&quot; &quot;/usr/local/lib/R/library&quot;</code></pre>
+<p>Newly installed packages will be installed in <code>/packages</code> inside the container, which is linked to <code>/tmp/packages</code> on your local machine.</p>
+<pre class="bash"><code>install.packages(&quot;pheatmap&quot;)
+Installing package into ‘/packages’
+(as ‘lib’ is unspecified)
+trying URL &#39;https://mran.microsoft.com/snapshot/2019-07-31/src/contrib/pheatmap_1.0.12.tar.gz&#39;
+Content type &#39;application/octet-stream&#39; length 15071 bytes (14 KB)
+==================================================
+downloaded 14 KB
+
+* installing *source* package ‘pheatmap’ ...
+** package ‘pheatmap’ successfully unpacked and MD5 sums checked
+** using staged installation
+** R
+** byte-compile and prepare package for lazy loading
+** help
+*** installing help indices
+** building package indices
+** testing if installed package can be loaded from temporary location
+** testing if installed package can be loaded from final location
+** testing if installed package keeps a record of temporary installation path
+* DONE (pheatmap)
+
+The downloaded source packages are in
+    ‘/tmp/RtmpQ7rBy5/downloaded_packages’</code></pre>
+<p>The next time you run RStudio Server, you just need to add the packages directory. All the packages in that directory will be directly available to use instantly the next time RStudio is started from the container. Another big advantage is that it prevents your Docker image from growing in size due to package installation and data. This allows the users to distribute smaller Docker images containing only what is needed.</p>
+<pre class="bash"><code>.libPaths(new = &quot;/packages&quot;)
+library(pheatmap)</code></pre>
+<p>Use “Control+C” to terminate the container.</p>
+</div>
+<div id="saving-analysis-results" class="section level3">
+<h3>Saving Analysis Results</h3>
+<p>You can mount as many volumes as needed with the -v/–volume command. For example you can mount a <code>package</code>, <code>notebooks</code>, and <code>data</code> volume to save your work on your local machine.</p>
+<pre class="bash"><code>docker run --rm \
+           -p 8888:8787 \
+           -v /tmp/packages:/packages \
+           -v /tmp/notebooks:/notebooks \
+           -v /tmp/data:/data \
+           -e PASSWORD=password \
+           davetang/rstudio_biocasia</code></pre>
+</div>
+<div id="rstudio-server-preferences" class="section level3">
+<h3>RStudio Server preferences</h3>
+<p>I have some specific preferences for RStudio Server that are absolutely necessary, such as using Vim key bindings. These preferences are set via the <code>Tools</code> menu bar and then selecting <code>Global Options...</code>. Each time we start a new container, we will lose our preferences and I don’t want to manually change them each time. Luckily, the settings are saved in a specific file, which we can use to save our settings; the <code>user-settings</code> file is stored in the location below:</p>
+<pre class="bash"><code>/home/rstudio/.rstudio/monitored/user-settings/user-settings</code></pre>
+<p>Once you have made all your settings, save this file back to your local computer and use it to rewrite the default file next time you start a new instance. For example:</p>
+<pre class="bash"><code># once you have the container running in the background, log into Docker container
+# I have mounted this directory to /data
+cp /data/user-settings /home/rstudio/.rstudio/monitored/user-settings/user-settings</code></pre>
+<p>Now you can have persistent RStudio Server preferences!</p>
+</div>
+</div>
+<div id="create-a-docker-image-for-your-project" class="section level2">
+<h2>Create a Docker Image for Your Project</h2>
+<p>Docker images are built based on commands contained in a <a href="https://docs.docker.com/engine/reference/builder/">Dockerfile</a>. For example below is the Dockerfile I used to create the <code>davetang/rstudio_biocasia</code> image.</p>
+<pre class="bash"><code>FROM rocker/rstudio:3.6.1
+
+MAINTAINER Dave Tang &lt;me@davetang.org&gt;
+
+RUN apt-get clean all &amp;&amp; \
+        apt-get update &amp;&amp; \
+        apt-get upgrade -y &amp;&amp; \
+        apt-get install -y \
+                libhdf5-dev \
+                libcurl4-gnutls-dev \
+                libssl-dev \
+                libxml2-dev \
+                libpng-dev \
+                zlib1g-dev \
+        &amp;&amp; apt-get clean all &amp;&amp; \
+        apt-get purge &amp;&amp; \
+        rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+RUN Rscript -e &quot;install.packages(c(&#39;rmarkdown&#39;, &#39;tidyverse&#39;, &#39;workflowr&#39;));&quot;
+
+# COPY user-settings /home/rstudio/.rstudio/monitored/user-settings/user-settings
+# COPY .Rprofile /home/rstudio/</code></pre>
+<p>This Dockerfile uses the image <code>rocker/rstudio:3.6.1</code> as a base and installs some commonly used libraries. Additional R packages that will be used in another workshop have been added. I have also copied data from my local machine into folders in the Docker image using <code>COPY</code> (although commented out). This data will be permanently included in the Docker image and can be a drawback if the data is large since the resulting Docker image will need more disk space. It is generally preferred to mount data volumes for linking data to a running container.</p>
+<p>Each RUN, COPY, and ADD command in a Dockerfile generates another layer in the container thus increasing its size. You should always use multi-line commands and clean up package manager caches to minimise the final image size.</p>
+<p>A Dockerfile is used to create an image using the following command in the folder with the Dockerfile.</p>
+<pre class="bash"><code>docker build -t davetang/rstudio .</code></pre>
+<p>After successfully creating the Docker image, it can be pushed to the Docker Hub so that others can use it. First, login using your Docker Hub username and password.</p>
+<pre class="bash"><code>docker login</code></pre>
+<p>Then push the image to <a href="https://hub.docker.com/r/davetang/rstudio_biocasia">Docker Hub</a>.</p>
+<pre class="bash"><code>docker push davetang/rstudio</code></pre>
+<br>
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
+<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span> Session information
+</button>
+</p>
+<div id="workflowr-sessioninfo" class="collapse">
+<pre class="r"><code>sessionInfo()</code></pre>
+<pre><code>R version 3.6.1 (2019-07-05)
+Platform: x86_64-apple-darwin15.6.0 (64-bit)
+Running under: macOS Mojave 10.14.6
+
+Matrix products: default
+BLAS:   /Library/Frameworks/R.framework/Versions/3.6/Resources/lib/libRblas.0.dylib
+LAPACK: /Library/Frameworks/R.framework/Versions/3.6/Resources/lib/libRlapack.dylib
+
+locale:
+[1] en_AU.UTF-8/en_AU.UTF-8/en_AU.UTF-8/C/en_AU.UTF-8/en_AU.UTF-8
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+loaded via a namespace (and not attached):
+ [1] workflowr_1.5.0 Rcpp_1.0.3      rprojroot_1.3-2 digest_0.6.22  
+ [5] later_1.0.0     R6_2.4.1        backports_1.1.5 git2r_0.26.1   
+ [9] magrittr_1.5    evaluate_0.14   stringi_1.4.3   rlang_0.4.1    
+[13] fs_1.3.1        promises_1.1.0  whisker_0.4     rmarkdown_1.17 
+[17] tools_3.6.1     stringr_1.4.0   glue_1.3.1      httpuv_1.5.2   
+[21] xfun_0.11       yaml_2.2.0      compiler_3.6.1  htmltools_0.4.0
+[25] knitr_1.26     </code></pre>
+</div>
+</div>
+
+
+<!-- Adjust MathJax settings so that all math formulae are shown using
+TeX fonts only; see
+http://docs.mathjax.org/en/latest/configuration.html.  This will make
+the presentation more consistent at the cost of the webpage sometimes
+taking slightly longer to load. Note that this only works because the
+footer is added to webpages before the MathJax javascript. -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

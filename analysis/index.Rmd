@@ -26,3 +26,4 @@ Links to workshop material.
 * [Introduction to Docker](docker.html)
 * [Introduction to Conda](conda.html)
 * [Introduction to workflowr](https://jdblischak.github.io/workflowr/articles/wflow-09-workshop.html)
+

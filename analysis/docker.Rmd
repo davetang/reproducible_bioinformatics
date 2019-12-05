@@ -341,3 +341,4 @@ Then push the image to [Docker Hub](https://hub.docker.com/r/davetang/rstudio_bi
 ```{bash eval=FALSE}
 docker push davetang/rstudio
 ```
+

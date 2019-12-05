@@ -7,6 +7,14 @@ navbar:
     href: index.html
   - text: About
     href: about.html
+  - text: Material
+    menu:
+    - text: Introduction to Docker
+      href: docker.html
+    - text: Introduction to Conda
+      href: conda.html
+    - text: Workflowr workshop
+      href: https://jdblischak.github.io/workflowr/articles/wflow-09-workshop.html
   - text: License
     href: license.html
   right:
@@ -17,5 +25,5 @@ output:
   workflowr::wflow_html:
     toc: yes
     toc_float: yes
-    theme: cosmo
+    theme: flatly
     highlight: textmate

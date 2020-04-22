@@ -415,3 +415,35 @@ Use `conda remove` to remove packages.
 conda remove bcftools
 ```
 
+## Miscellaneous
+
+1. I've set up an environment for an analysis and I want to activate the environment in a script so that I can runs the tools from my script. For example you want to submit your script to Slurm. You may come across the error:
+
+```{bash, eval=FALSE}
+CommandNotFoundError: Your shell has not been properly configured to use 'conda activate'.
+```
+
+You can either use `source` instead of `conda activate`
+
+```{bash, eval=FALSE}
+source activate my_env
+```
+
+Or use `source conda.sh` (change accordingly if you used Anaconda or installed it somewhere else). See [here](https://github.com/conda/conda/issues/7980) for more information.
+
+```{bash, eval=FALSE}
+source ~/miniconda3/etc/profile.d/conda.sh
+conda activate my_env
+```
+
+2. Solving environment takes too long!
+
+I don't know if it is overkill but I try to separate some tools into their own environment. I also try to group tools based on the type of analysis I need to perform. For example I separate the [Google Cloud SDK](https://cloud.google.com/sdk/) into its own environment.
+
+```{bash, eval=FALSE}
+conda create -c conda-forge -n gcloud google-cloud-sdk
+```
+
+3. A tool that I want to use isn't available on Conda.
+
+Try to use [Docker](docker.html) to install the tool. I have a [Dockerfile](https://github.com/davetang/learning_docker/blob/master/Dockerfile.base) that creates an image with commonly used tools and libraries for building and installing bioinformatics software.

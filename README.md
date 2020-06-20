@@ -11,7 +11,7 @@ Workshop details for [BioC Asia 2019](https://bioconductor.github.io/BiocAsia/).
 
 ## Setup
 
-If you are using Windows or macOS please install Docker Desktop from https://docs.docker.com/install/#supported-platforms.
+If you are using Windows or macOS please install Docker Desktop from https://docs.docker.com/install/#supported-platforms. Docker Desktop for Windows requires Microsoft Windows 10 Professional or Enterprise 64-bit; for previous versions get Docker Toolbox. You can download Docker Desktop for Windows on [dockerhub](https://hub.docker.com/editions/community/docker-ce-desktop-windows/).
 
 If you are using Linux please install Docker Engine - Community for your distro:
 

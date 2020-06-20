@@ -22,14 +22,14 @@ If you are using Linux please install Docker Engine - Community for your distro:
 
 If you are not using any of these operating systems, you're on your own!
 
-Once Docker is installed, check the version:
+Once Docker is installed, check the version using the terminal for Linux or macOS and using the Windows PowerShell for Windows.
 
 ```bash
 docker --version
 Docker version 19.03.5, build 633a0ea
 ```
 
-Run the `hello-world` example.
+Run the `hello-world` example, which will pull the latest `hello-world` image (if you don't already have this image) and run it.
 
 ```bash
 docker run hello-world
@@ -62,6 +62,17 @@ Finally pull these images.
 docker pull continuumio/miniconda3
 docker pull davetang/rstudio_biocasia
 ```
+
+Run `davetang/rstudio_biocasia`.
+
+```bash
+docker run --rm \
+           -p 8888:8787 \
+           -e PASSWORD=password \
+           davetang/rstudio_biocasia
+```
+
+Now open your web browser (e.g. Firefox, Chrome, etc.) and paste `localhost:8888` into the address bar. The username is `rstudio` and the password is `password`.
 
 ## Useful links
 

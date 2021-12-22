@@ -11,16 +11,26 @@
 
 <meta name="author" content="Dave Tang" />
 
-<meta name="date" content="2020-04-22" />
+<meta name="date" content="2021-12-22" />
 
 <title>Introduction to Conda</title>
 
+<script src="site_libs/header-attrs-2.9/header-attrs.js"></script>
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="site_libs/bootstrap-3.3.5/css/flatly.min.css" rel="stylesheet" />
 <script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
 <script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
 <script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
 <script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
 <link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
 <script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
@@ -38,12 +48,18 @@ div.section {
 }
 </style>
 
-<style type="text/css">code{white-space: pre;}</style>
+
+
 <style type="text/css">
-  pre:not([class]) {
-    background-color: white;
-  }
-</style>
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
 <script type="text/javascript">
 if (window.hljs) {
   hljs.configure({languages: []});
@@ -56,32 +72,7 @@ if (window.hljs) {
 
 
 
-<style type="text/css">
-h1 {
-  font-size: 34px;
-}
-h1.title {
-  font-size: 38px;
-}
-h2 {
-  font-size: 30px;
-}
-h3 {
-  font-size: 24px;
-}
-h4 {
-  font-size: 18px;
-}
-h5 {
-  font-size: 16px;
-}
-h6 {
-  font-size: 12px;
-}
-.table th:not([align]) {
-  text-align: left;
-}
-</style>
+
 
 
 
@@ -91,10 +82,6 @@ h6 {
   max-width: 940px;
   margin-left: auto;
   margin-right: auto;
-}
-code {
-  color: inherit;
-  background-color: rgba(0, 0, 0, 0.04);
 }
 img {
   max-width:100%;
@@ -111,40 +98,13 @@ button.code-folding-btn:focus {
 summary {
   display: list-item;
 }
+pre code {
+  padding: 0;
+}
 </style>
 
 
 <style type="text/css">
-/* padding for bootstrap navbar */
-body {
-  padding-top: 51px;
-  padding-bottom: 40px;
-}
-/* offset scroll position for anchor links (for fixed navbar)  */
-.section h1 {
-  padding-top: 56px;
-  margin-top: -56px;
-}
-.section h2 {
-  padding-top: 56px;
-  margin-top: -56px;
-}
-.section h3 {
-  padding-top: 56px;
-  margin-top: -56px;
-}
-.section h4 {
-  padding-top: 56px;
-  margin-top: -56px;
-}
-.section h5 {
-  padding-top: 56px;
-  margin-top: -56px;
-}
-.section h6 {
-  padding-top: 56px;
-  margin-top: -56px;
-}
 .dropdown-submenu {
   position: relative;
 }
@@ -172,7 +132,7 @@ body {
   margin-right: -10px;
 }
 .dropdown-submenu:hover>a:after {
-  border-left-color: #ffffff;
+  border-left-color: #adb5bd;
 }
 .dropdown-submenu.pull-left {
   float: none;
@@ -184,7 +144,7 @@ body {
 }
 </style>
 
-<script>
+<script type="text/javascript">
 // manage active state of menu based on current page
 $(document).ready(function () {
   // active menu anchor
@@ -195,10 +155,23 @@ $(document).ready(function () {
   var menuAnchor = $('a[href="' + href + '"]');
 
   // mark it active
-  menuAnchor.parent().addClass('active');
+  menuAnchor.tab('show');
 
   // if it's got a parent navbar menu mark it active as well
   menuAnchor.closest('li.dropdown').addClass('active');
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
 });
 </script>
 
@@ -210,7 +183,6 @@ $(document).ready(function () {
   max-height: 500px;
   min-height: 44px;
   overflow-y: auto;
-  background: white;
   border: 1px solid #ddd;
   border-radius: 4px;
 }
@@ -336,7 +308,7 @@ div.tocify {
 
 
 <!-- setup 3col/9col grid for toc_float and main content  -->
-<div class="row-fluid">
+<div class="row">
 <div class="col-xs-12 col-sm-4 col-md-3">
 <div id="TOC" class="tocify">
 </div>
@@ -403,13 +375,13 @@ div.tocify {
   </div><!--/.container -->
 </div><!--/.navbar -->
 
-<div class="fluid-row" id="header">
+<div id="header">
 
 
 
 <h1 class="title toc-ignore">Introduction to Conda</h1>
 <h4 class="author">Dave Tang</h4>
-<h4 class="date">2020-04-22</h4>
+<h4 class="date">2021-12-22</h4>
 
 </div>
 
@@ -434,7 +406,7 @@ div.tocify {
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2020-04-22
+<strong>Last updated:</strong> 2021-12-22
 </p>
 <p>
 <strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
@@ -444,7 +416,7 @@ div.tocify {
 </p>
 <p>
 This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis was created with <a
-  href="https://github.com/jdblischak/workflowr">workflowr</a> (version 1.6.1). The <em>Checks</em> tab describes the reproducibility checks that were applied when the results were created. The <em>Past versions</em> tab lists the development history.
+  href="https://github.com/jdblischak/workflowr">workflowr</a> (version 1.6.2). The <em>Checks</em> tab describes the reproducibility checks that were applied when the results were created. The <em>Past versions</em> tab lists the development history.
 </p>
 <hr>
 </div>
@@ -482,7 +454,7 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 </div>
 <div id="strongSeedstrongcodesetseed20191203code" class="panel-collapse collapse">
 <div class="panel-body">
-<p>The command <code>set.seed(20191203)</code> was run prior to running the code in the R Markdown file. Setting a seed ensures that any results that rely on randomness, e.g. subsampling or permutations, are reproducible.</p>
+<p>The command <code>set.seed(20191203)</code> was run prior to running the code in the R Markdown file. Setting a seed ensures that any results that rely on randomness, e.g. subsampling or permutations, are reproducible.</p>
 </div>
 </div>
 </div>
@@ -525,23 +497,23 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomdavetangreproduciblebioinformaticstree20b6e0c00748755a10e91cf6d21aaabbe85a31aetargetblank20b6e0ca"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/davetang/reproducible_bioinformatics/tree/20b6e0c00748755a10e91cf6d21aaabbe85a31ae" target="_blank">20b6e0c</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomdavetangreproduciblebioinformaticstree7f61a4bb9b4c360f28e4000e2b7b39afd3ec6655targetblank7f61a4ba"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/davetang/reproducible_bioinformatics/tree/7f61a4bb9b4c360f28e4000e2b7b39afd3ec6655" target="_blank">7f61a4b</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomdavetangreproduciblebioinformaticstree20b6e0c00748755a10e91cf6d21aaabbe85a31aetargetblank20b6e0ca" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomdavetangreproduciblebioinformaticstree7f61a4bb9b4c360f28e4000e2b7b39afd3ec6655targetblank7f61a4ba" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
 </p>
 <p>
-The results in this page were generated with repository version <a href="https://github.com/davetang/reproducible_bioinformatics/tree/20b6e0c00748755a10e91cf6d21aaabbe85a31ae" target="_blank">20b6e0c</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+The results in this page were generated with repository version <a href="https://github.com/davetang/reproducible_bioinformatics/tree/7f61a4bb9b4c360f28e4000e2b7b39afd3ec6655" target="_blank">7f61a4b</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
 </p>
 <p>
 Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
 </p>
 <pre><code>
 Ignored files:
-    Ignored:    .Rhistory
+    Ignored:    .Rproj.user/
 
 </code></pre>
 <p>
@@ -580,6 +552,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/davetang/reproducible_bioinformatics/blob/7f61a4bb9b4c360f28e4000e2b7b39afd3ec6655/analysis/conda.Rmd" target="_blank">7f61a4b</a>
+</td>
+<td>
+Dave Tang
+</td>
+<td>
+2021-12-22
+</td>
+<td>
+Some more tips
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/davetang/reproducible_bioinformatics/b2ffe55b079f172ada54b9dae2150b43a0a18bf8/docs/conda.html" target="_blank">b2ffe55</a>
+</td>
+<td>
+davetang
+</td>
+<td>
+2020-04-22
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -998,9 +1004,17 @@ zlib                      1.2.11               h7b6447c_3  </code></pre>
 </div>
 <div id="pre-configuring-channels" class="section level3">
 <h3>Pre-configuring Channels</h3>
-<p>If you have a few trusted channels that you prefer to use, you can pre-configure these so that everytime you are creating an environment, you won’t need to explicitly declare the channel.</p>
-<pre class="bash"><code>conda config --add channels conda-forge
-conda config --add channels bioconda</code></pre>
+<p>If you have a few trusted channels that you prefer to use, you can pre-configure these so that each time you are creating an environment, you won’t need to explicitly declare the channel. It is important to add them in the following order so that the priority is set correctly, with conda-forge with the highest priority. See <a href="https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-channels.html">managing channels</a> for more information.</p>
+<pre class="bash"><code>conda config --add channels defaults
+conda config --add channels bioconda
+conda config --add channels conda-forge</code></pre>
+<p>To see your channels use <code>--show</code>.</p>
+<pre class="bash"><code>conda config --show channels
+channels:
+  - conda-forge
+  - bioconda
+  - defaults</code></pre>
+<p>If you want to reorder your channels, simply add them again.</p>
 <p>After adding channels, you can search for packages.</p>
 <pre class="bash"><code>conda search bwa
 Loading channels: done
@@ -1061,9 +1075,16 @@ conda activate my_env</code></pre>
 <ol start="2" style="list-style-type: decimal">
 <li>Solving environment takes too long!</li>
 </ol>
-<p>I don’t know if it is overkill but I try to separate some tools into their own environment. I also try to group tools based on the type of analysis I need to perform. For example I separate the <a href="https://cloud.google.com/sdk/">Google Cloud SDK</a> into its own environment.</p>
-<pre class="bash"><code>conda create -c conda-forge -n gcloud google-cloud-sdk</code></pre>
+<p>Use <a href="https://github.com/mamba-org/mamba">Mamba</a>, which is a reimplementation of the conda package manager and is much faster. Install <code>mamba</code> from <code>conda-forge</code>.</p>
+<pre class="bash"><code>conda install mamba -n base -c conda-forge</code></pre>
+<p>In addition, you can separate tools into different environments instead of installing everything into the <code>base</code> environment.</p>
+<pre class="bash"><code>conda create -c bioconda -n hts bwa samtools bcftools</code></pre>
 <ol start="3" style="list-style-type: decimal">
+<li>Nothing provides abc needed by xyz!</li>
+</ol>
+<p>Sometimes dependencies are not available because additional channels have not been included. For example, make sure conda-forge has been added by running the following command to list all added channels.</p>
+<pre class="bash"><code>conda config --show channels</code></pre>
+<ol start="4" style="list-style-type: decimal">
 <li>A tool that I want to use isn’t available on Conda.</li>
 </ol>
 <p>Try to use <a href="docker.html">Docker</a> to install the tool. I have a <a href="https://github.com/davetang/learning_docker/blob/master/Dockerfile.base">Dockerfile</a> that creates an image with commonly used tools and libraries for building and installing bioinformatics software.</p>
@@ -1075,30 +1096,36 @@ conda activate my_env</code></pre>
 </p>
 <div id="workflowr-sessioninfo" class="collapse">
 <pre class="r"><code>sessionInfo()</code></pre>
-<pre><code>R version 3.6.2 (2019-12-12)
-Platform: x86_64-apple-darwin15.6.0 (64-bit)
-Running under: macOS Catalina 10.15.4
+<pre><code>R version 4.1.0 (2021-05-18)
+Platform: x86_64-pc-linux-gnu (64-bit)
+Running under: Ubuntu 20.04.2 LTS
 
 Matrix products: default
-BLAS:   /Library/Frameworks/R.framework/Versions/3.6/Resources/lib/libRblas.0.dylib
-LAPACK: /Library/Frameworks/R.framework/Versions/3.6/Resources/lib/libRlapack.dylib
+BLAS/LAPACK: /usr/lib/x86_64-linux-gnu/openblas-pthread/libopenblasp-r0.3.8.so
 
 locale:
-[1] en_AU.UTF-8/en_AU.UTF-8/en_AU.UTF-8/C/en_AU.UTF-8/en_AU.UTF-8
+ [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+ [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
+ [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=C             
+ [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
+ [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+[11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
 
 attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
 other attached packages:
-[1] workflowr_1.6.1
+[1] workflowr_1.6.2
 
 loaded via a namespace (and not attached):
- [1] Rcpp_1.0.4      rprojroot_1.3-2 digest_0.6.25   later_1.0.0    
- [5] R6_2.4.1        backports_1.1.5 git2r_0.26.1    magrittr_1.5   
- [9] evaluate_0.14   stringi_1.4.6   rlang_0.4.5     fs_1.4.0       
-[13] promises_1.1.0  whisker_0.4     rmarkdown_2.1   tools_3.6.2    
-[17] stringr_1.4.0   glue_1.3.2      httpuv_1.5.2    xfun_0.12      
-[21] yaml_2.2.1      compiler_3.6.2  htmltools_0.4.0 knitr_1.28     </code></pre>
+ [1] Rcpp_1.0.7        whisker_0.4       knitr_1.33        magrittr_2.0.1   
+ [5] R6_2.5.0          rlang_0.4.11      fansi_0.5.0       stringr_1.4.0    
+ [9] tools_4.1.0       xfun_0.24         utf8_1.2.1        git2r_0.28.0     
+[13] htmltools_0.5.1.1 ellipsis_0.3.2    rprojroot_2.0.2   yaml_2.2.1       
+[17] digest_0.6.27     tibble_3.1.2      lifecycle_1.0.0   crayon_1.4.1     
+[21] later_1.2.0       vctrs_0.3.8       promises_1.2.0.1  fs_1.5.0         
+[25] glue_1.4.2        evaluate_0.14     rmarkdown_2.9     stringi_1.7.2    
+[29] compiler_4.1.0    pillar_1.6.1      httpuv_1.6.1      pkgconfig_2.0.3  </code></pre>
 </div>
 </div>
 
@@ -1116,6 +1143,8 @@ footer is added to webpages before the MathJax javascript. -->
 </script>
 
 
+
+
 </div>
 </div>
 
@@ -1125,7 +1154,7 @@ footer is added to webpages before the MathJax javascript. -->
 
 // add bootstrap table styles to pandoc tables
 function bootstrapStylePandocTables() {
-  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
 }
 $(document).ready(function () {
   bootstrapStylePandocTables();
@@ -1143,7 +1172,7 @@ $(document).ready(function () {
 
 $(document).ready(function () {
   $('.tabset-dropdown > .nav-tabs > li').click(function () {
-    $(this).parent().toggleClass('nav-tabs-open')
+    $(this).parent().toggleClass('nav-tabs-open');
   });
 });
 </script>
@@ -1152,6 +1181,9 @@ $(document).ready(function () {
 
 <script>
 $(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
 
     // move toc-ignore selectors from section div to header
     $('div.section.toc-ignore')
@@ -1164,7 +1196,7 @@ $(document).ready(function ()  {
       theme: "bootstrap3",
       context: '.toc-content',
       hashGenerator: function (text) {
-        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
       },
       ignoreSelector: ".toc-ignore",
       scrollTo: 0

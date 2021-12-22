@@ -357,12 +357,25 @@ It is important to be careful when downloading packages and use only trusted sou
 
 ### Pre-configuring Channels
 
-If you have a few trusted channels that you prefer to use, you can pre-configure these so that everytime you are creating an environment, you won't need to explicitly declare the channel.
+If you have a few trusted channels that you prefer to use, you can pre-configure these so that each time you are creating an environment, you won't need to explicitly declare the channel. It is important to add them in the following order so that the priority is set correctly, with conda-forge with the highest priority. See [managing channels](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-channels.html) for more information.
 
 ```{bash, eval=FALSE}
-conda config --add channels conda-forge
+conda config --add channels defaults
 conda config --add channels bioconda
+conda config --add channels conda-forge
 ```
+
+To see your channels use `--show`.
+
+```{bash, eval=FALSE}
+conda config --show channels
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+```
+
+If you want to reorder your channels, simply add them again.
 
 After adding channels, you can search for packages.
 
@@ -438,12 +451,26 @@ conda activate my_env
 
 2. Solving environment takes too long!
 
-I don't know if it is overkill but I try to separate some tools into their own environment. I also try to group tools based on the type of analysis I need to perform. For example I separate the [Google Cloud SDK](https://cloud.google.com/sdk/) into its own environment.
+Use [Mamba](https://github.com/mamba-org/mamba), which is a reimplementation of the conda package manager and is much faster. Install `mamba` from `conda-forge`.
 
 ```{bash, eval=FALSE}
-conda create -c conda-forge -n gcloud google-cloud-sdk
+conda install mamba -n base -c conda-forge
 ```
 
-3. A tool that I want to use isn't available on Conda.
+In addition, you can separate tools into different environments instead of installing everything into the `base` environment.
+
+```{bash, eval=FALSE}
+conda create -c bioconda -n hts bwa samtools bcftools
+```
+
+3. Nothing provides abc needed by xyz!
+
+Sometimes dependencies are not available because additional channels have not been included. For example, make sure conda-forge has been added by running the following command to list all added channels.
+
+```{bash, eval=FALSE}
+conda config --show channels
+```
+
+4. A tool that I want to use isn't available on Conda.
 
 Try to use [Docker](docker.html) to install the tool. I have a [Dockerfile](https://github.com/davetang/learning_docker/blob/master/Dockerfile.base) that creates an image with commonly used tools and libraries for building and installing bioinformatics software.
